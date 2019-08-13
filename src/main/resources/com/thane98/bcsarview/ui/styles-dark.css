@@ -1,0 +1,48 @@
+.split-pane > .split-pane-divider {
+    -fx-background-color: #666;
+}
+
+.caret {
+    -fx-fill: white;
+    -fx-stroke: white;
+}
+
+#finderBox, #statusBar {
+    -fx-background-color: #1e1e1e;
+    background_color: #1e1e1e;
+}
+
+.styled-text-area {
+    -fx-font-size: 12pt;
+    -fx-background-color: #252525;
+}
+
+.styled-text-area .text {
+    -fx-fill: white;
+}
+
+.lineno {
+    -fx-font-size: 12pt;
+    -fx-background-color: black;
+}
+
+.styled-text-area .keyword {
+    -fx-fill: #c678dd;
+    -fx-font-weight: bold;
+}
+
+.styled-text-area .string {
+    -fx-fill: #e5c07b;
+}
+
+.styled-text-area .comment {
+	-fx-fill: #98c379;
+}
+
+.styled-text-area .frame-ref {
+    -fx-fill: #61afef;
+}
+
+.styled-text-area .error {
+    -rtfx-background-color: red;
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.stage.Stage?>
+<?import javafx.scene.Scene?>
+
+<Stage xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <scene>
+      <Scene>
+         <VBox fx:id="detailsContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+               prefHeight="500.0" prefWidth="520.0" spacing="10.0">
+            <padding>
+               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+            <Label text="Associated Sounds">
+               <VBox.margin>
+                  <Insets/>
+               </VBox.margin>
+               <font>
+                  <Font size="18.0"/>
+               </font>
+            </Label>
+            <ListView fx:id="associatedSoundsList" prefHeight="200.0" prefWidth="200.0"/>
+            <Label layoutX="20.0" layoutY="20.0" text="Subset">
+               <font>
+                  <Font size="18.0"/>
+               </font>
+            </Label>
+         </VBox>
+      </Scene>
+   </scene>
+</Stage>

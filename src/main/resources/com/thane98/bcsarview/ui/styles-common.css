@@ -1,0 +1,49 @@
+.root {
+    -fx-font-size: 11pt;
+    -fx-font-family: "DejaVu Sans";
+}
+
+.table-view .column-header{
+    -fx-font-size: 9pt;
+    -fx-padding: -1 -1 -1 -1;
+}
+
+.list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-padding: 0.75em 0.5em 0.5em 0.75em;
+}
+
+.table-cell {
+    -fx-padding: 0.5em 1em 0.5em 1em;
+}
+
+#hex-area {
+    -fx-font-family: "DejaVu Sans Mono";
+}
+
+.popover .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-font-size: 11pt;
+    -fx-padding: 0.5em 0.5em 0.5em 0.5em;
+    -fx-cell-size: 36px;
+}
+
+.split-pane {
+    -fx-background-color: background_color;
+    -fx-box-border: transparent;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-padding: 1px;
+}
+
+.progress-bar .bar {
+    -fx-background-insets: 0, 1, 2;
+    -fx-padding: 0.416667em; /* 5 */
+}
+
+#failure-bar .bar {
+    -fx-background-color: maroon;
+}
+
+#success-bar .bar {
+    -fx-background-color: green;
+}

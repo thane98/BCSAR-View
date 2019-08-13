@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
+    <MenuBar VBox.vgrow="NEVER">
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem mnemonicParsing="false" text="Open…" onAction="#openFile"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" text="Close"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" text="Quit"/>
+        </Menu>
+    </MenuBar>
+    <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="Sounds">
+            <fx:include fx:id="configs" source="Config.fxml" />
+        </Tab>
+        <Tab text="Sets">
+            <fx:include fx:id="sets" source="Set.fxml" />
+        </Tab>
+        <Tab text="Banks">
+            <fx:include fx:id="banks" source="Bank.fxml" />
+        </Tab>
+        <Tab text="Archives">
+            <fx:include fx:id="archives" source="Archives.fxml" />
+        </Tab>
+        <Tab text="Groups">
+            <fx:include fx:id="groups" source="Group.fxml" />
+        </Tab>
+        <Tab text="Players">
+            <fx:include fx:id="players" source="Player.fxml" />
+        </Tab>
+    </TabPane>
+</VBox>
