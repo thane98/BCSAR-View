@@ -22,8 +22,11 @@
         <Tab text="Sounds">
             <fx:include fx:id="configs" source="Config.fxml" />
         </Tab>
-        <Tab text="Sets">
-            <fx:include fx:id="sets" source="Set.fxml" />
+        <Tab text="Sound Sets">
+            <fx:include fx:id="soundSets" source="SoundSet.fxml" />
+        </Tab>
+        <Tab text="Sequence Sets">
+            <fx:include fx:id="sequenceSets" source="SequenceSet.fxml" />
         </Tab>
         <Tab text="Banks">
             <fx:include fx:id="banks" source="Bank.fxml" />

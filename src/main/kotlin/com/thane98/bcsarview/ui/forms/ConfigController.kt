@@ -77,7 +77,7 @@ class ConfigController : Initializable {
 
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            csar.value.dumpFile(config.file.value as InternalFileReference, result.toPath())
+            csar.value.dumpSound(config, result.toPath())
     }
 
     fun onFileChange(csar: Csar?) { table.items = csar?.configs }

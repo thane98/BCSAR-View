@@ -2,7 +2,6 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.Archive
-import com.thane98.bcsarview.core.structs.entries.InternalFileReference
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.fxml.FXML
@@ -48,6 +47,13 @@ class ArchiveController : Initializable {
     }
 
     private fun dumpArchive(archive: Archive) {
+        val chooser = createDumpArchiveDialog(archive)
+        val result = chooser.showSaveDialog(table.scene.window)
+        if (result != null)
+            csar.value.dumpFile(archive.file.value, result.toPath())
+    }
+
+    private fun createDumpArchiveDialog(archive: Archive): FileChooser {
         val chooser = FileChooser()
         chooser.title = "Save archive..."
         chooser.initialFileName = "$archive.cwar"
@@ -55,10 +61,7 @@ class ArchiveController : Initializable {
             FileChooser.ExtensionFilter("3DS Sound Archives", "*.cwar"),
             FileChooser.ExtensionFilter("All Files", "*.*")
         )
-
-        val result = chooser.showSaveDialog(table.scene.window)
-        if (result != null)
-            csar.value.dumpFile(archive.file.value as InternalFileReference, result.toPath())
+        return chooser
     }
 
     fun onFileChange(csar: Csar?) { table.items = csar?.archives }

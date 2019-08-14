@@ -7,9 +7,12 @@ import com.thane98.bcsarview.core.structs.entries.*
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 
+private data class Sets(val soundSets: ObservableList<SoundSet>, val sequenceSets: ObservableList<SequenceSet>)
+
 class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
     val configs: ObservableList<AudioConfig>
-    val sets: ObservableList<IEntry>
+    val soundSets: ObservableList<SoundSet>
+    val sequenceSets: ObservableList<SequenceSet>
     val banks: ObservableList<Bank>
     val archives: ObservableList<Archive>
     val groups: ObservableList<SoundGroup>
@@ -38,12 +41,14 @@ class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
         val footerAddress = baseAddress + reader.readInt() + 8
 
         files = readFileTable(reader, fileTableAddress)
-        sets = readSetTable(reader, setTableAddress, strg)
-        banks = readBankTable(reader, bankTableAddress, strg)
         archives = readArchiveTable(reader, archiveTableAddress, strg)
+        banks = readBankTable(reader, bankTableAddress, strg)
         groups = readGroupTable(reader, groupTableAddress, strg)
         players = readPlayerTable(reader, playerTableAddress, strg)
         configs = readConfigTable(reader, configTableAddress, strg)
+        val sets = readSetTable(reader, setTableAddress, strg)
+        soundSets = sets.soundSets
+        sequenceSets = sets.sequenceSets
         reader.seek(footerAddress)
         footer = reader.read(0x1C).array()
         println("Success!")
@@ -61,16 +66,22 @@ class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
         return result
     }
 
-    private fun readSetTable(reader: IBinaryReader, baseAddress: Long, strg: Strg): ObservableList<IEntry> {
-        val result = FXCollections.observableArrayList<IEntry>()
+    private fun readSetTable(reader: IBinaryReader, baseAddress: Long, strg: Strg): Sets {
+        val soundSets = FXCollections.observableArrayList<SoundSet>()
+        val sequenceSets = FXCollections.observableArrayList<SequenceSet>()
         reader.seek(baseAddress)
         val numEntries = reader.readInt()
         for (i in 0 until numEntries) {
             reader.seek(baseAddress + i * 0x8 + 8)
             val entryAddress = baseAddress + reader.readInt()
-            result.add(BaseSet(reader, entryAddress, this, strg))
+            reader.seek(entryAddress + 0x10)
+            when (reader.readInt()) {
+                0x2205 -> soundSets.add(SoundSet(reader, entryAddress, this, strg))
+                0 -> sequenceSets.add(SequenceSet(reader, entryAddress, strg))
+                else -> throw java.lang.IllegalArgumentException("Unrecognized set type!")
+            }
         }
-        return result
+        return Sets(soundSets, sequenceSets)
     }
 
     private fun readBankTable(reader: IBinaryReader, baseAddress: Long, strg: Strg): ObservableList<Bank> {

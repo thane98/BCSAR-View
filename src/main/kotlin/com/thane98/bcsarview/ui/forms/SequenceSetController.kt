@@ -1,24 +1,36 @@
 package com.thane98.bcsarview.ui.forms
 
-import com.aneagle.SpecialTextField
+import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.SequenceSet
-import com.thane98.bcsarview.ui.utils.ByteArrayStringConverter
-import com.thane98.bcsarview.ui.utils.byteArrayToText
+import com.thane98.bcsarview.ui.utils.ByteArrayTableCell
+import javafx.beans.property.SimpleStringProperty
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
-import javafx.scene.control.ListView
+import javafx.scene.control.TableColumn
+import javafx.scene.control.TableView
 import java.net.URL
 import java.util.*
 
-class SequenceSetController(private val set: SequenceSet): Initializable {
+class SequenceSetController: Initializable {
     @FXML
-    private lateinit var unknownField: SpecialTextField
+    private lateinit var table: TableView<SequenceSet>
     @FXML
-    private lateinit var unknownTwoField: ListView<Int>
+    private lateinit var nameColumn: TableColumn<SequenceSet, String>
+    @FXML
+    private lateinit var unknownColumn: TableColumn<SequenceSet, ByteArray>
+    @FXML
+    private lateinit var unknownTwoColumn: TableColumn<SequenceSet, ByteArray>
+    @FXML
+    private lateinit var unknownThreeColumn: TableColumn<SequenceSet, String>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
-        unknownField.forceSetText(byteArrayToText(set.unknown.value))
-        unknownField.textProperty().bindBidirectional(set.unknown, ByteArrayStringConverter())
-        unknownTwoField.items = set.unknownTwo
+        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
+        unknownColumn.setCellValueFactory { it.value.unknown }
+        unknownColumn.setCellFactory { ByteArrayTableCell<SequenceSet>() }
+        unknownTwoColumn.setCellValueFactory { it.value.unknownTwo }
+        unknownTwoColumn.setCellFactory { ByteArrayTableCell<SequenceSet>() }
+        unknownThreeColumn.setCellValueFactory { SimpleStringProperty(it.value.unknownThree.toString()) }
     }
+
+    fun onFileChange(csar: Csar?) { table.items = csar?.sequenceSets}
 }

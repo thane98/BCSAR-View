@@ -8,7 +8,6 @@ import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.stage.FileChooser
 import java.net.URL
-import java.nio.channels.FileChannel
 import java.util.*
 
 class MainWindowController: Initializable {
@@ -17,7 +16,9 @@ class MainWindowController: Initializable {
     @FXML
     private lateinit var configsController: ConfigController
     @FXML
-    private lateinit var setsController: SetController
+    private lateinit var soundSetsController: SoundSetController
+    @FXML
+    private lateinit var sequenceSetsController: SequenceSetController
     @FXML
     private lateinit var banksController: BankController
     @FXML
@@ -31,11 +32,14 @@ class MainWindowController: Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         configsController.csar.bind(csar)
-        setsController.csar.bind(csar)
+        soundSetsController.csar.bind(csar)
+        banksController.csar.bind(csar)
         archivesController.csar.bind(csar)
+        groupsController.csar.bind(csar)
         csar.addListener { _ ->
+            soundSetsController.onFileChange(csar.value)
+            sequenceSetsController.onFileChange(csar.value)
             configsController.onFileChange(csar.value)
-            setsController.onFileChange(csar.value)
             banksController.onFileChange(csar.value)
             archivesController.onFileChange(csar.value)
             groupsController.onFileChange(csar.value)

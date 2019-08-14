@@ -1,30 +1,29 @@
 package com.thane98.bcsarview.core.structs.entries
 
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
-import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.interfaces.IEntryVisitor
 import com.thane98.bcsarview.core.structs.Info
 import com.thane98.bcsarview.core.structs.Strg
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
 
-class SoundSet(): IEntry {
-    val unknown = SimpleObjectProperty<ByteArray>()
-    val name = SimpleStringProperty()
-    val unknownTwo = SimpleIntegerProperty()
+class SoundSet(): BaseSet() {
+    val unknownTwo = SimpleObjectProperty<ByteArray>()
+    val unknownThree = SimpleIntegerProperty()
     val file = SimpleObjectProperty<InternalFileReference>()
-    val unknownThree = SimpleObjectProperty<ByteArray>()
-    val archiveIndex = SimpleIntegerProperty()
+    val unknownFour = SimpleObjectProperty<ByteArray>()
+    val archive = SimpleObjectProperty<Archive>()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {
-        reader.seek(baseAddress + 4) // Skip type identifier
-        unknown.value = reader.read(8).array()
+        readBaseSetProperties(reader, baseAddress)
+        reader.seek(baseAddress + 0x14) // Skip base properties and type identifier
+        unknownTwo.value = reader.read(8).array()
         name.value = strg.entries[reader.readInt()].name
-        unknownTwo.value = reader.readInt()
+        unknownThree.value = reader.readInt()
         file.value = info.files[reader.readInt()] as InternalFileReference
-        unknownThree.value = reader.read(0x10).array()
-        archiveIndex.value = reader.readInt24()
+        unknownFour.value = reader.read(0xC).array()
+        if (reader.readInt() != 0)
+            archive.value = info.archives[reader.readInt24()]
     }
 
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitSoundSet(this) }

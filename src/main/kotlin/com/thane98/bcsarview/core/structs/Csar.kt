@@ -1,7 +1,7 @@
 package com.thane98.bcsarview.core.structs
 
+import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
-import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.BinaryReader
 import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
@@ -9,6 +9,7 @@ import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.ObservableList
+import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
@@ -21,7 +22,8 @@ class Csar(private var path: Path) {
     private var fileAddress: Long
     private val byteOrder: ByteOrder
     val configs: ObservableList<AudioConfig>
-    val sets: ObservableList<IEntry>
+    val soundSets: ObservableList<SoundSet>
+    val sequenceSets: ObservableList<SequenceSet>
     val banks: ObservableList<Bank>
     val archives: ObservableList<Archive>
     val groups: ObservableList<SoundGroup>
@@ -44,7 +46,8 @@ class Csar(private var path: Path) {
             val info = Info(reader, infoAddress, strg)
 
             configs = info.configs
-            sets = info.sets
+            soundSets = info.soundSets
+            sequenceSets = info.sequenceSets
             banks = info.banks
             archives = info.archives
             groups = info.groups
@@ -63,11 +66,30 @@ class Csar(private var path: Path) {
         }
     }
 
-    fun extractSoundSet(baseSet: BaseSet, destination: Path) {
-        val soundSet = baseSet.subEntry.value as SoundSet
-        val targetArchive = archives[soundSet.archiveIndex.value]
-        val sounds = findAssociatedSounds(baseSet)
+    fun dumpSound(config: AudioConfig, destination: Path) {
+        if (config.configType == ConfigType.SEQUENCE)
+            dumpFile(config.file.value as InternalFileReference, destination)
+        else {
+            val soundIndex = configs.indexOf(config)
+            val soundSet = findTargetSoundSet(soundIndex)
+                ?: throw IllegalArgumentException("Target sound is not in a sound set!")
+            val reader = reopen()
+            reader.use {
+                val wsdIndex = soundIndex - soundSet.soundStartIndex.value
+                val war = openArchive(reader, soundSet.archive.value)
+                val wsd = openSoundSet(reader, soundSet)
+                Files.write(destination, war.extractFile(reader, wsd.entries[wsdIndex].archiveIndex))
+            }
+        }
+    }
 
+    private fun findTargetSoundSet(soundId: Int): SoundSet? {
+        return soundSets.find { soundId >= it.soundStartIndex.value && soundId <= it.soundEndIndex.value }
+    }
+
+    fun extractSoundSet(soundSet: SoundSet, destination: Path) {
+        val targetArchive = soundSet.archive.value
+        val sounds = findAssociatedSounds(soundSet)
         val reader = reopen()
         reader.use {
             val war = openArchive(reader, targetArchive)

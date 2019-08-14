@@ -7,16 +7,17 @@ import com.thane98.bcsarview.core.structs.Info
 import com.thane98.bcsarview.core.structs.Strg
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import java.lang.IllegalArgumentException
 
-class BaseSet(): IEntry {
+abstract class BaseSet: IEntry {
+    val name = SimpleStringProperty()
     val soundStartIndex = SimpleIntegerProperty()
     val soundEndIndex = SimpleIntegerProperty()
     val soundType = SimpleIntegerProperty()
     val unknown = SimpleObjectProperty<ByteArray>()
-    val subEntry = SimpleObjectProperty<IEntry>()
 
-    constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {
+    protected fun readBaseSetProperties(reader: IBinaryReader, baseAddress: Long) {
         reader.seek(baseAddress)
         soundStartIndex.value = reader.readInt24()
         soundType.value = reader.readByte()
@@ -24,21 +25,5 @@ class BaseSet(): IEntry {
         if (soundType.value != reader.readByte())
             throw IllegalArgumentException("Type mismatch in sound set!")
         unknown.value = reader.read(8).array()
-
-        when (reader.readInt()) {
-            0x2205 -> subEntry.value = SoundSet(reader, baseAddress + 0x10, info, strg)
-            0 -> subEntry.value = SequenceSet(reader, baseAddress + 0x10, strg)
-        }
-    }
-
-    override fun <T> accept(visitor: IEntryVisitor<T>): T {
-        return visitor.visitBaseSet(this)
-    }
-
-    override fun toString(): String {
-        return if (subEntry.value != null)
-            subEntry.value.toString()
-        else
-            "Anonymous Set"
     }
 }
