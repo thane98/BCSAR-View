@@ -1,19 +1,18 @@
 package com.thane98.bcsarview.core.structs.entries
 
-import com.thane98.bcsarview.core.interfaces.IBinaryReader
-import com.thane98.bcsarview.core.interfaces.IBinaryWriter
-import com.thane98.bcsarview.core.interfaces.IEntry
-import com.thane98.bcsarview.core.interfaces.IEntryVisitor
+import com.thane98.bcsarview.core.interfaces.*
 import com.thane98.bcsarview.core.structs.Csar
 import javafx.beans.property.SimpleLongProperty
 import javafx.beans.property.SimpleObjectProperty
+import java.nio.file.Path
 
-class InternalFileReference() : IEntry {
+class InternalFileReference(reader: IBinaryReader, baseAddress: Long) : IEntry {
     var fileAddress: Long = 0
     var fileSize: Long = 0
     val unknown = SimpleObjectProperty<ByteArray>()
+    val retriever: IFileRetriever? = null
 
-    constructor(reader: IBinaryReader, baseAddress: Long): this() {
+    init {
         reader.seek(baseAddress + 4)
         val fileInfoAddress = baseAddress + reader.readInt() + 4
         unknown.value = reader.read(8).array()

@@ -2,8 +2,11 @@ package com.thane98.bcsarview.core.structs
 
 import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
+import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.BinaryReader
+import com.thane98.bcsarview.core.io.BinaryWriter
+import com.thane98.bcsarview.core.io.retrievers.InternalFileRetriever
 import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
@@ -14,15 +17,16 @@ import java.lang.IllegalArgumentException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
-class Csar(private var path: Path) {
-    private var fileAddress: Long
+class Csar(var path: Path) {
     private val strg: Strg
     private val info: Info
+    var fileAddress: Long
     val byteOrder: ByteOrder
     val configs: ObservableList<AudioConfig>
     val soundSets: ObservableList<SoundSet>
@@ -62,7 +66,76 @@ class Csar(private var path: Path) {
     }
 
     fun save(destination: Path) {
-        Files.write(destination, strg.serialize(this))
+        val channel = FileChannel.open(
+            destination,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING,
+            StandardOpenOption.WRITE
+        )
+        val reader = reopen()
+        val writer = BinaryWriter(channel, byteOrder)
+        reader.use {
+            writer.use {
+                val strg = strg.serialize(this)
+                val info = info.serialize(this)
+                writeHeader(reader, writer)
+                writer.write(strg)
+                writer.write(info)
+                val filePartitionSize = writeFilePartition(writer)
+                fixHeader(writer, strg.size, info.size, filePartitionSize)
+            }
+        }
+    }
+
+    private fun writeHeader(reader: IBinaryReader, writer: IBinaryWriter) {
+        writer.write("CSAR".toByteArray(StandardCharsets.UTF_8))
+        writer.writeShort(0xFEFF)
+        writer.writeShort(0x40)
+        reader.seek(writer.tell().toLong())
+        writer.write(reader.read(4)) // Version
+        writer.writeInt(0) // BCSAR size. Need to revisit.
+        writer.writeInt(3) // Number of partitions
+        writer.writeInt(0x2000)
+        writer.writeInt(0) // STRG address. Always 0x40.
+        writer.writeInt(0) // STRG length. Need to revisit
+        writer.writeInt(0x2001)
+        writer.writeInt(0) // INFO address. Need to revisit.
+        writer.writeInt(0) // INFO length. Need to revisit.
+        writer.writeInt(0x2002)
+        writer.writeInt(0) // FILE address. Need to revisit.
+        writer.writeInt(0) // FILE length. Need to revisit.
+        reader.seek(writer.tell().toLong())
+        writer.write(reader.read(0x8))
+    }
+
+    private fun fixHeader(writer: IBinaryWriter, strgSize: Int, infoSize: Int, fileSize: Int) {
+        writer.seek(0xC)
+        writer.writeInt(strgSize + infoSize + fileSize + 0x40)
+        writer.seek(0x18)
+        writer.writeInt(0x40)
+        writer.writeInt(strgSize)
+        writer.seek(0x24)
+        writer.writeInt(strgSize + 0x40)
+        writer.writeInt(infoSize)
+        writer.seek(0x30)
+        writer.writeInt(strgSize + infoSize + 0x40)
+        writer.writeInt(fileSize)
+    }
+
+    private fun writeFilePartition(writer: IBinaryWriter): Int {
+        val baseAddress = writer.tell()
+        writer.write("FILE".toByteArray(StandardCharsets.UTF_8))
+        while (writer.tell() != baseAddress + 0x20) writer.writeInt(0) // Fill out the rest of the header...
+        for (entry in files) {
+            if (entry is InternalFileReference) {
+                val retriever = entry.retriever ?: InternalFileRetriever(this, entry)
+                writer.write(retriever.retrieve())
+            }
+        }
+        val filePartitionSize = writer.tell() - baseAddress
+        writer.seek(baseAddress + 4)
+        writer.writeInt(filePartitionSize)
+        return filePartitionSize
     }
 
     fun dumpFile(record: InternalFileReference, destination: Path) {

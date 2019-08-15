@@ -65,8 +65,8 @@ class StrgTrie {
     }
 
     private fun getTestBit(strgEntry: StrgEntry, charIndex: Int, bit: Int): Boolean {
-        assert(charIndex != -1 && charIndex < strgEntry.name.length)
-        assert(bit != -1 && bit < 8)
+        if (charIndex >= strgEntry.name.length)
+            return false
         val char = strgEntry.name[charIndex].toInt()
         val bits = Integer.toBinaryString(char).padStart(8, '0')
         return bits[bit] == '1'

@@ -62,6 +62,11 @@ class MainWindowController: Initializable {
     }
 
     @FXML
+    private fun save() {
+        csar.value.save(csar.value.path)
+    }
+
+    @FXML
     private fun saveFileAs() {
         val dialog = FileChooser()
         dialog.title = "Save Sound Archive"
