@@ -22,7 +22,7 @@ class BankController : Initializable {
     @FXML
     private lateinit var unknownColumn: TableColumn<Bank, ByteArray>
     @FXML
-    private lateinit var unknownTwoColumn: TableColumn<Bank, Number>
+    private lateinit var archiveColumn: TableColumn<Bank, String>
 
     val csar = SimpleObjectProperty<Csar>()
 
@@ -31,8 +31,7 @@ class BankController : Initializable {
         nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.setCellFactory { ByteArrayTableCell<Bank>() }
-        unknownTwoColumn.setCellValueFactory { it.value.unknownTwo }
-        unknownTwoColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
+        archiveColumn.setCellValueFactory { SimpleStringProperty(it.value.archive.value?.toString()) }
     }
 
     private fun setupContextMenu() {

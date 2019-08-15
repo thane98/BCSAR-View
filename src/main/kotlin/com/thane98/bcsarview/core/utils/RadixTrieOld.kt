@@ -1,4 +1,4 @@
-package com.thane98.bcsarview.core
+package com.thane98.bcsarview.core.utils
 
 import java.lang.StringBuilder
 

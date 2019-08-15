@@ -55,7 +55,6 @@ class ByteArrayTableCell<T> : TableCell<T, ByteArray>() {
             if (i < item.size - 1)
                 sb.append(' ')
         }
-        println(sb.toString())
         return sb.toString()
     }
 }

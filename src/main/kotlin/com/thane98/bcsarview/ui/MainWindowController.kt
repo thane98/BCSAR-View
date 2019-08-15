@@ -60,4 +60,18 @@ class MainWindowController: Initializable {
         if (selection != null)
             csar.value = Csar(selection.toPath())
     }
+
+    @FXML
+    private fun saveFileAs() {
+        val dialog = FileChooser()
+        dialog.title = "Save Sound Archive"
+        dialog.extensionFilters.addAll(
+            FileChooser.ExtensionFilter("3DS Sound Archives", "*.bcsar"),
+            FileChooser.ExtensionFilter("All Files", "*.*")
+        )
+
+        val selection = dialog.showSaveDialog(tabs.scene.window)
+        if (selection != null)
+            csar.value.save(selection.toPath())
+    }
 }

@@ -2,6 +2,7 @@ package com.thane98.bcsarview.core.structs
 
 import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
+import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.BinaryReader
 import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
@@ -20,7 +21,9 @@ import java.nio.file.StandardOpenOption
 
 class Csar(private var path: Path) {
     private var fileAddress: Long
-    private val byteOrder: ByteOrder
+    private val strg: Strg
+    private val info: Info
+    val byteOrder: ByteOrder
     val configs: ObservableList<AudioConfig>
     val soundSets: ObservableList<SoundSet>
     val sequenceSets: ObservableList<SequenceSet>
@@ -28,7 +31,7 @@ class Csar(private var path: Path) {
     val archives: ObservableList<Archive>
     val groups: ObservableList<SoundGroup>
     val players: ObservableList<Player>
-    val footer = SimpleObjectProperty<ByteArray>()
+    val files: ObservableList<IEntry>
 
     init {
         val channel = FileChannel.open(path, StandardOpenOption.READ)
@@ -42,8 +45,8 @@ class Csar(private var path: Path) {
             val infoAddress = reader.readInt().toLong()
             reader.seek(0x30)
             fileAddress = reader.readInt().toLong()
-            val strg = Strg(reader, strgAddress)
-            val info = Info(reader, infoAddress, strg)
+            this.strg = Strg(reader, strgAddress)
+            this.info = Info(reader, infoAddress, strg)
 
             configs = info.configs
             soundSets = info.soundSets
@@ -52,10 +55,14 @@ class Csar(private var path: Path) {
             archives = info.archives
             groups = info.groups
             players = info.players
-            footer.value = info.footer
+            files = info.files
         } finally {
             channel.close()
         }
+    }
+
+    fun save(destination: Path) {
+        Files.write(destination, strg.serialize(this))
     }
 
     fun dumpFile(record: InternalFileReference, destination: Path) {

@@ -7,6 +7,6 @@
     <columns>
         <TableColumn fx:id="nameColumn" sortable="false" prefWidth="200.0" text="Name"/>
         <TableColumn fx:id="unknownColumn" sortable="false" prefWidth="150.0" text="Unknown"/>
-        <TableColumn fx:id="unknownTwoColumn" sortable="false" prefWidth="150.0" text="Unknown"/>
+        <TableColumn fx:id="archiveColumn" sortable="false" prefWidth="150.0" text="Archive"/>
     </columns>
 </TableView>
