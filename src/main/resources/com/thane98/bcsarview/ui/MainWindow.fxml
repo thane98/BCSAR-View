@@ -13,12 +13,19 @@
         <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" text="Open…" onAction="#openFile"/>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As" onAction="#saveFileAs" />
+            <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save" onAction="#saveFile" />
+            <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" text="Save As" onAction="#saveFileAs" />
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" text="Close"/>
+            <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close" onAction="#close" />
             <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" text="Quit"/>
+            <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit" />
+        </Menu>
+        <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
+            <Menu mnemonicParsing="false" text="Import">
+                <MenuItem mnemonicParsing="false" text="Archive" onAction="#importArchive" />
+                <MenuItem mnemonicParsing="false" text="External Sound" onAction="#importExternalSound" />
+            </Menu>
+            <MenuItem mnemonicParsing="false" text="Add External Sound" onAction="#addExternalSound" />
         </Menu>
     </MenuBar>
     <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">

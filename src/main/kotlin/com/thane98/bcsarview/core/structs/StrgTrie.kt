@@ -12,6 +12,14 @@ data class StrgTrieNode(
 ) {
     var isLeaf = data != null
 
+    fun hasLessRestrictivePath(other: StrgTrieNode): Boolean {
+        if (other.isLeaf)
+            return true
+        if (!this.isLeaf && charIndex < other.charIndex)
+            return true
+        return (charIndex == other.charIndex) && bit < other.bit
+    }
+
     override fun toString(): String {
         return "StrgTrieNode(left=$left, right=$right, charIndex=$charIndex, bit=$bit, data=$data)"
     }
@@ -54,10 +62,34 @@ class StrgTrie {
 
         val curNode = con[index]
         return if (!curNode.isLeaf) {
-            if (getTestBit(strgEntry, curNode.charIndex, curNode.bit))
-                curNode.right = insertHelper(strgEntry, curNode.right)
-            else
-                curNode.left = insertHelper(strgEntry, curNode.left)
+            // Walk to next node. If insertion causes a child node to get a
+            // less restrictive prefix, it should replace the current node.
+            if (getTestBit(strgEntry, curNode.charIndex, curNode.bit)) {
+                val oldRight = curNode.right
+                val newRight = insertHelper(strgEntry, curNode.right)
+                if (con[newRight].hasLessRestrictivePath(curNode)) {
+                    if (con[newRight].right == oldRight)
+                        con[newRight].right = index
+                    else
+                        con[newRight].left = index
+                    return newRight
+                } else {
+                    curNode.right = newRight
+                }
+            }
+            else {
+                val oldLeft = curNode.left
+                val newLeft = insertHelper(strgEntry, curNode.left)
+                if (con[newLeft].hasLessRestrictivePath(curNode)) {
+                    if (con[newLeft].right == oldLeft)
+                        con[newLeft].right = index
+                    else
+                        con[newLeft].left = index
+                    return newLeft
+                } else {
+                    curNode.left = newLeft
+                }
+            }
             index
         } else {
             createAndInsertInternalNode(strgEntry, index)

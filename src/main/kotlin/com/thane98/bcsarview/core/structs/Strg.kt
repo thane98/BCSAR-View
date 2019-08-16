@@ -3,36 +3,37 @@ package com.thane98.bcsarview.core.structs
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.io.ByteListWriter
 import com.thane98.bcsarview.core.io.verifyMagic
-import javafx.collections.FXCollections
-import javafx.collections.ObservableList
-import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-data class StrgEntry(val name: String, val resourceId: Int, val type: Int, var index: Int) {
+data class StrgEntry(var name: String, var resourceId: Int, var type: Int, var index: Int) {
     override fun toString(): String {
         return name
     }
 }
 
-class Strg {
-    val entries: List<StrgEntry>
+class Strg(reader: IBinaryReader, baseAddress: Long) {
+    val entries: MutableList<StrgEntry>
 
-    constructor(entries: List<StrgEntry>) {
-        this.entries = entries
-    }
-
-    constructor(reader: IBinaryReader, baseAddress: Long) {
+    init {
         reader.seek(baseAddress)
         reader.verifyMagic("STRG")
-
         reader.seek(baseAddress + 0xC)
         val nameTableAddress = baseAddress + reader.readInt() + 8
         reader.seek(baseAddress + 0x14)
         val lookupTableAddress = baseAddress + reader.readInt() + 8
-
         val names = readNamesTable(reader, nameTableAddress)
         entries = readLookupTable(reader, lookupTableAddress, names)
+    }
+
+    fun allocateEntry(name: String, resourceType: Int): StrgEntry {
+        val index = entries.indexOfLast { it.type == resourceType }
+        val prevEntry = entries[index]
+        val entry = StrgEntry(name, prevEntry.resourceId + 1, resourceType, index + 1)
+        for (i in index + 1 until entries.size)
+            entries[i].index += 1
+        entries.add(index + 1, entry)
+        return entry
     }
 
     private fun readNamesTable(reader: IBinaryReader, baseAddress: Long): List<String> {
@@ -52,7 +53,7 @@ class Strg {
         return result
     }
 
-    private fun readLookupTable(reader: IBinaryReader, baseAddress: Long, names: List<String>): List<StrgEntry> {
+    private fun readLookupTable(reader: IBinaryReader, baseAddress: Long, names: List<String>): MutableList<StrgEntry> {
         val result = mutableListOf<StrgEntry>()
         reader.seek(baseAddress + 4) // Skip root index for now; not needed
         val numNodes = reader.readInt()
@@ -68,7 +69,7 @@ class Strg {
                 result.add(StrgEntry(name, resourceId, resourceType, strgIndex))
             }
         }
-        return result.sortedWith(compareBy { it.index })
+        return result.sortedWith(compareBy { it.index }).toMutableList()
     }
 
     fun serialize(csar: Csar): ByteArray {
@@ -108,8 +109,19 @@ class Strg {
     }
 
     private fun serializeLookupTable(csar: Csar): ByteArray {
+        // It looks like archives are always inserted last?
+        // Sort entries such that everything else is inserted before archives.
         val trie = StrgTrie()
-        for (entry in entries)
+        val sortedEntries = entries.sortedWith(Comparator { a, b ->
+            val aValue = if (a.type == 5) Integer.MAX_VALUE else a.type
+            val bValue = if (b.type == 5) Integer.MAX_VALUE else b.type
+            when {
+                aValue < bValue -> -1
+                aValue == bValue -> 0
+                else -> 1
+            }
+        })
+        for (entry in sortedEntries)
             trie.insert(entry)
         return trie.serialize(csar)
     }

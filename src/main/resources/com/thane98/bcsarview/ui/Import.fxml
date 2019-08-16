@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.stage.Stage?>
+<?import javafx.scene.Scene?>
+<?import org.controlsfx.glyphfont.Glyph?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<Stage fx:id="stage" xmlns:fx="http://javafx.com/fxml/1">
+   <scene>
+      <Scene>
+         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0"
+               spacing="15.0" prefWidth="679.0" xmlns="http://javafx.com/javafx/8.0.202-ea">
+            <padding>
+               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+            <GridPane hgap="10.0" vgap="20.0">
+               <columnConstraints>
+                  <ColumnConstraints halignment="LEFT" hgrow="NEVER" maxWidth="284.0" minWidth="10.0"
+                                     prefWidth="100.0"/>
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="482.0" minWidth="10.0" prefWidth="600.0"/>
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+               </rowConstraints>
+               <Label text="BCSAR">
+                  <font>
+                     <Font name="System Bold" size="15.0"/>
+                  </font>
+               </Label>
+               <Label text="Player" GridPane.rowIndex="1">
+                  <font>
+                     <Font name="System Bold" size="15.0"/>
+                  </font>
+               </Label>
+               <HBox GridPane.columnIndex="1" alignment="CENTER_LEFT" prefHeight="29.0" prefWidth="580.0" spacing="10.0">
+                  <TextField fx:id="fileNameField" disable="true" HBox.hgrow="ALWAYS"/>
+                  <Button contentDisplay="CENTER" mnemonicParsing="false" onAction="#openCsar">
+                     <graphic>
+                        <Glyph fontFamily="FontAwesome" icon="FOLDER_OPEN" />
+                     </graphic>
+                  </Button>
+               </HBox>
+               <ComboBox fx:id="playerBox" prefHeight="26.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"
+                         GridPane.rowIndex="1"/>
+            </GridPane>
+            <Label layoutX="20.0" layoutY="51.0" text="External Sounds">
+               <font>
+                  <Font name="System Bold" size="15.0"/>
+               </font>
+            </Label>
+            <ListView fx:id="externalSoundSelectionView" />
+            <ButtonBar prefHeight="40.0" prefWidth="200.0">
+               <buttons>
+                  <Button fx:id="importButton" mnemonicParsing="false" text="Import" onAction="#import" />
+                  <Button layoutX="505.0" layoutY="10.0" mnemonicParsing="false" text="Cancel" onAction="#cancel" />
+               </buttons>
+            </ButtonBar>
+         </VBox>
+      </Scene>
+   </scene>
+</Stage>

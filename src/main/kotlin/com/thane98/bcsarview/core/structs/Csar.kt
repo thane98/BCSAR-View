@@ -128,6 +128,7 @@ class Csar(var path: Path) {
         while (writer.tell() != baseAddress + 0x20) writer.writeInt(0) // Fill out the rest of the header...
         for (entry in files) {
             if (entry is InternalFileReference) {
+                while (writer.tell() % 0x20 != 0) writer.writeByte(0)
                 val retriever = entry.retriever ?: InternalFileRetriever(this, entry)
                 writer.write(retriever.retrieve())
             }
@@ -208,5 +209,22 @@ class Csar(var path: Path) {
 
     private fun reopen(): IBinaryReader {
         return BinaryReader(FileChannel.open(path), byteOrder)
+    }
+
+    fun addExternalSound(name: String, path: String, player: Player, sourceConfig: AudioConfig) {
+        // TODO: Verify that name isn't in use
+        val fileEntry = ExternalFileReference()
+        fileEntry.path = path
+        files.add(fileEntry)
+
+        val newConfig = AudioConfig()
+        newConfig.configType = ConfigType.EXTERNAL_SOUND
+        newConfig.file.value = fileEntry
+        newConfig.player.value = player
+        newConfig.unknown.value = sourceConfig.unknown.value
+        newConfig.unknownTwo.value = sourceConfig.unknownTwo.value.copyOf()
+        newConfig.strgEntry.value = strg.allocateEntry(name, 1)
+        newConfig.unknownThree.value = sourceConfig.unknownThree.value.copyOf()
+        configs.add(newConfig)
     }
 }
