@@ -30,8 +30,6 @@ class ConfigController : Initializable {
     @FXML
     private lateinit var unknownColumn: TableColumn<AudioConfig, Number>
     @FXML
-    private lateinit var unknownTwoColumn: TableColumn<AudioConfig, ByteArray>
-    @FXML
     private lateinit var unknownThreeColumn: TableColumn<AudioConfig, ByteArray>
 
     val csar = SimpleObjectProperty<Csar>()
@@ -43,8 +41,6 @@ class ConfigController : Initializable {
         playerColumn.setCellValueFactory { SimpleStringProperty(it.value.player.value.toString()) }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
-        unknownTwoColumn.setCellValueFactory { it.value.unknownTwo }
-        unknownTwoColumn.setCellFactory { ByteArrayTableCell<AudioConfig>() }
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
         unknownThreeColumn.setCellFactory { HexAreaTableCell<AudioConfig>() }
     }

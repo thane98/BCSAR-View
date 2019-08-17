@@ -1,8 +1,10 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.SoundSet
 import com.thane98.bcsarview.ui.utils.ByteArrayTableCell
+import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import com.thane98.bcsarview.ui.utils.applyStyles
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -20,15 +22,9 @@ class SoundSetController: Initializable {
     @FXML
     private lateinit var table: TableView<SoundSet>
     @FXML
-    private lateinit var nameColumn: TableColumn<SoundSet, String>
-    @FXML
-    private lateinit var unknownColumn: TableColumn<SoundSet, ByteArray>
-    @FXML
-    private lateinit var unknownTwoColumn: TableColumn<SoundSet, ByteArray>
+    private lateinit var nameColumn: TableColumn<SoundSet, StrgEntry>
     @FXML
     private lateinit var unknownThreeColumn: TableColumn<SoundSet, Number>
-    @FXML
-    private lateinit var unknownFourColumn: TableColumn<SoundSet, ByteArray>
     @FXML
     private lateinit var archiveColumn: TableColumn<SoundSet, String>
 
@@ -36,15 +32,10 @@ class SoundSetController: Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
-        unknownColumn.setCellValueFactory { it.value.unknown }
-        unknownColumn.setCellFactory { ByteArrayTableCell<SoundSet>() }
-        unknownTwoColumn.setCellValueFactory { it.value.unknownTwo }
-        unknownTwoColumn.setCellFactory { ByteArrayTableCell<SoundSet>() }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<SoundSet>() }
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
         unknownThreeColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
-        unknownFourColumn.setCellValueFactory { it.value.unknownFour }
-        unknownFourColumn.setCellFactory { ByteArrayTableCell<SoundSet>() }
         archiveColumn.setCellValueFactory { SimpleStringProperty(it.value.archive.value?.toString()) }
     }
 

@@ -1,8 +1,7 @@
 package com.thane98.bcsarview.ui.forms
 
-import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.structs.Csar
-import com.thane98.bcsarview.core.structs.entries.AudioConfig
+import com.thane98.bcsarview.core.structs.entries.Archive
 import javafx.beans.binding.Bindings
 import javafx.fxml.FXML
 import javafx.scene.control.ListView
@@ -10,9 +9,9 @@ import javafx.scene.control.SelectionMode
 import java.net.URL
 import java.util.*
 
-class ImportExternalSoundsController(destinationCsar: Csar): AbstractImportController(destinationCsar) {
+class ImportArchiveController(destinationCsar: Csar) : AbstractImportController(destinationCsar) {
     @FXML
-    private lateinit var selectionView: ListView<AudioConfig>
+    private lateinit var selectionView: ListView<Archive>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         super.initialize(p0, p1)
@@ -20,15 +19,16 @@ class ImportExternalSoundsController(destinationCsar: Csar): AbstractImportContr
         val noPlayerProperty = Bindings.isNull(playerBox.selectionModel.selectedItemProperty())
         importButton.disableProperty().bind(hasNoSelectionProperty.or(noPlayerProperty))
         selectionView.selectionModel.selectionMode = SelectionMode.MULTIPLE
-        stage.title = "Import External Sounds"
+        stage.title = "Import Archives"
     }
 
     override fun onOpenCsar() {
-        selectionView.items = sourceCsar?.configs?.filtered { it.configType == ConfigType.EXTERNAL_SOUND }
+        selectionView.items = sourceCsar?.archives?.filtered { it.strgEntry.value != null }
     }
 
     override fun doImport() {
-        destinationCsar.importExternalSounds(
+        destinationCsar.importArchives(
+            sourceCsar!!,
             selectionView.selectionModel.selectedItems,
             playerBox.selectionModel.selectedItem
         )

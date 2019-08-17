@@ -1,7 +1,9 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.Archive
+import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.fxml.FXML
@@ -17,7 +19,7 @@ class ArchiveController : Initializable {
     @FXML
     private lateinit var table: TableView<Archive>
     @FXML
-    private lateinit var nameColumn: TableColumn<Archive, String>
+    private lateinit var nameColumn: TableColumn<Archive, StrgEntry>
     @FXML
     private lateinit var unknownColumn: TableColumn<Archive, Number>
     @FXML
@@ -27,7 +29,8 @@ class ArchiveController : Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<Archive>() }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         entryCountColumn.setCellValueFactory { it.value.entryCount }

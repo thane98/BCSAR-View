@@ -5,9 +5,7 @@
 
 <TableView fx:id="table" editable="true" prefHeight="200.0" prefWidth="200.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thane98.bcsarview.ui.forms.SequenceSetController">
     <columns>
-        <TableColumn fx:id="nameColumn" sortable="false" prefWidth="200.0" text="Name"/>
-        <TableColumn fx:id="unknownColumn" sortable="false" prefWidth="150.0" text="Unknown"/>
-        <TableColumn fx:id="unknownTwoColumn" sortable="false" prefWidth="150.0" text="Unknown"/>
-        <TableColumn fx:id="unknownThreeColumn" sortable="false" prefWidth="150.0" text="Unknown" />
+        <TableColumn fx:id="nameColumn" sortable="false" prefWidth="300.0" text="Name"/>
+        <TableColumn fx:id="unknownThreeColumn" sortable="false" prefWidth="450.0" text="Unknown" />
     </columns>
 </TableView>

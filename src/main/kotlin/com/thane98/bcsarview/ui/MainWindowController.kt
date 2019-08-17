@@ -4,19 +4,24 @@ import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.ui.forms.*
 import com.thane98.bcsarview.ui.utils.applyStyles
 import com.thane98.bcsarview.ui.utils.createBcsarOpenDialog
+import com.thane98.bcsarview.ui.utils.createErrorDialog
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
+import javafx.concurrent.Task
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.stage.FileChooser
 import javafx.stage.Stage
+import java.lang.Exception
 import java.net.URL
 import java.nio.file.CopyOption
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
+import kotlin.concurrent.thread
 
 class MainWindowController: Initializable {
     @FXML
@@ -72,18 +77,20 @@ class MainWindowController: Initializable {
         val dialog = createBcsarOpenDialog()
         val selection = dialog.showOpenDialog(tabs.scene.window)
         if (selection != null)
-            csar.value = Csar(selection.toPath())
+            thread { csar.value = Csar(selection.toPath()) }.run()
     }
 
     @FXML
     private fun saveFile() {
-        val oldPath = csar.value.path
-        val tempPath = oldPath.resolveSibling("BCSARVIEW_TEMP_${oldPath.fileName}")
-        Files.move(oldPath, tempPath)
-        csar.value.path = tempPath
-        csar.value.save(oldPath)
-        csar.value.path = oldPath
-        Files.delete(tempPath)
+        thread {
+            val oldPath = csar.value.path
+            val tempPath = oldPath.resolveSibling("BCSARVIEW_TEMP_${oldPath.fileName}")
+            Files.move(oldPath, tempPath)
+            csar.value.path = tempPath
+            csar.value.save(oldPath)
+            csar.value.path = oldPath
+            Files.delete(tempPath)
+        }.run()
     }
 
     @FXML
@@ -97,7 +104,7 @@ class MainWindowController: Initializable {
 
         val selection = dialog.showSaveDialog(tabs.scene.window)
         if (selection != null)
-            csar.value.save(selection.toPath())
+            thread { csar.value.save(selection.toPath()) }.run()
     }
 
     @FXML
@@ -112,7 +119,11 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun importArchive() {
-
+        val loader = FXMLLoader()
+        loader.setController(ImportArchiveController(csar.value))
+        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
     }
 
     @FXML

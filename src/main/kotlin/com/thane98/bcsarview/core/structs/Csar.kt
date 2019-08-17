@@ -234,51 +234,55 @@ class Csar(var path: Path) {
 
     fun importArchives(source: Csar, archives: List<Archive>, player: Player) {
         for (archive in archives) {
-            val archiveFileRecord = archive.file.value
-            archiveFileRecord.retriever = ImportedFileRetriever(
-                source.path,
-                source.fileAddress + archiveFileRecord.fileAddress + 8,
-                archiveFileRecord.fileSize.toInt(),
-                byteOrder
-            )
-            importInternalFile(archiveFileRecord)
+            importInternalFile(source, archive.file.value)
+            archive.strgEntry.value = strg.allocateEntry(archive.strgEntry.value.name, archive.strgEntry.value.type)
             this.archives.add(archive)
 
             val sets = source.findAssociatedSets(archive)
             for (set in sets)
-                importSoundSet(set, player, archives.lastIndex)
+                importSoundSet(source, set, player, this.archives.lastIndex)
         }
     }
 
-    private fun importInternalFile(record: InternalFileReference) {
-        val last = files.maxBy {
-            if (it is InternalFileReference)
-                it.fileAddress
-            -1
-        } as? InternalFileReference
-        record.fileAddress = if (last == null)
-            0x18
-        else {
-            last.fileAddress + last.fileSize + last.fileSize % 0x20
+    private fun importInternalFile(source: Csar, record: InternalFileReference) {
+        record.retriever = ImportedFileRetriever(
+            source.path,
+            source.fileAddress + record.fileAddress + 8,
+            record.fileSize.toInt(),
+            byteOrder
+        )
+
+        var maxAddress: Long = 0x18
+        for (file in files) {
+            if (file is InternalFileReference) {
+                val fileEnd = file.fileAddress + file.fileSize
+                val endAddress = fileEnd + (0x20 - (fileEnd % 0x20))
+                if (endAddress > maxAddress)
+                    maxAddress = endAddress
+            }
         }
+        record.fileAddress = maxAddress - 8
         files.add(record)
     }
 
-    private fun importSoundSet(set: SoundSet, player: Player, archiveId: Int) {
-        val sounds = findAssociatedSounds(set)
+    private fun importSoundSet(source: Csar, set: SoundSet, player: Player, archiveId: Int) {
+        val sounds = source.findAssociatedSounds(set)
+        importInternalFile(source, set.file.value)
+        set.strgEntry.value = strg.allocateEntry(set.strgEntry.value.name, set.strgEntry.value.type)
+        set.soundStartIndex.value = configs.size
+        set.soundEndIndex.value = configs.size + sounds.size - 1
         for (sound in sounds) {
             sound.player.value = player
             sound.strgEntry.value = strg.allocateEntry(sound.strgEntry.value.name, sound.strgEntry.value.type)
             configs.add(sound)
         }
-        set.soundStartIndex.value = sounds.first().strgEntry.value.index
-        set.soundEndIndex.value = sounds.last().strgEntry.value.index
         val wsdReader = set.file.value.open()
         wsdReader.use {
             val wsd = Cwsd(wsdReader)
             wsd.moveToArchive(archiveId)
             set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
         }
+        soundSets.add(set)
     }
 
     private fun findAssociatedSets(archive: Archive): List<SoundSet> {

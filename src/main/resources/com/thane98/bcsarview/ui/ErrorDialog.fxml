@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<?import javafx.stage.Stage?>
+<?import javafx.scene.Scene?>
+<Stage title="Error Occurred" fx:id="stage" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <scene>
+      <Scene>
+         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="500.0">
+            <HBox alignment="CENTER_LEFT" prefHeight="60.0" prefWidth="500.0" style="-fx-background-color: #2e2e2e;">
+               <VBox.margin>
+                  <Insets/>
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+               </padding>
+               <Label fx:id="headerLabel" text="Header">
+                  <font>
+                     <Font size="18.0"/>
+                  </font>
+               </Label>
+            </HBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0"/>
+               </VBox.margin>
+               <padding>
+                  <Insets top="10.0"/>
+               </padding>
+               <Label fx:id="messageLabel" text="Message"/>
+               <Label layoutX="10.0" layoutY="20.0" text="The exception stacktrace is:"/>
+               <TextArea fx:id="errorField" prefHeight="200.0" prefWidth="200.0"/>
+               <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                  <buttons>
+                     <Button defaultButton="true" mnemonicParsing="false" onAction="#closeDialog" text="OK"/>
+                  </buttons>
+               </ButtonBar>
+            </VBox>
+         </VBox>
+      </Scene>
+   </scene>
+</Stage>

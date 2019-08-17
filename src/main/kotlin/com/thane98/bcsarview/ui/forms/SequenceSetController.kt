@@ -17,18 +17,10 @@ class SequenceSetController: Initializable {
     @FXML
     private lateinit var nameColumn: TableColumn<SequenceSet, String>
     @FXML
-    private lateinit var unknownColumn: TableColumn<SequenceSet, ByteArray>
-    @FXML
-    private lateinit var unknownTwoColumn: TableColumn<SequenceSet, ByteArray>
-    @FXML
     private lateinit var unknownThreeColumn: TableColumn<SequenceSet, String>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
-        unknownColumn.setCellValueFactory { it.value.unknown }
-        unknownColumn.setCellFactory { ByteArrayTableCell<SequenceSet>() }
-        unknownTwoColumn.setCellValueFactory { it.value.unknownTwo }
-        unknownTwoColumn.setCellFactory { ByteArrayTableCell<SequenceSet>() }
         unknownThreeColumn.setCellValueFactory { SimpleStringProperty(it.value.unknownThree.toString()) }
     }
 

@@ -199,7 +199,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         writeEntryList(writer, fileAddress, csar, files, 0x220A)
         val footerAddress = result.size
         writer.write(footer)
-        while (result.size % 16 != 0)
+        while (result.size % 0x20 != 0)
             writer.writeByte(0)
         writer.seek(0xC)
         writer.writeInt(configAddress - 8)
