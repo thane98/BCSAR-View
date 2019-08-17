@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets
 
 private data class Sets(val soundSets: ObservableList<SoundSet>, val sequenceSets: ObservableList<SequenceSet>)
 
-class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
+class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
     val configs: ObservableList<AudioConfig>
     val soundSets: ObservableList<SoundSet>
     val sequenceSets: ObservableList<SequenceSet>
@@ -43,7 +43,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
         reader.seek(baseAddress + 0x44)
         val footerAddress = baseAddress + reader.readInt() + 8
 
-        files = readFileTable(reader, fileTableAddress)
+        files = readFileTable(reader, fileTableAddress, csar)
         archives = readArchiveTable(reader, archiveTableAddress, strg)
         banks = readBankTable(reader, bankTableAddress, strg)
         groups = readGroupTable(reader, groupTableAddress, strg)
@@ -146,22 +146,22 @@ class Info(reader: IBinaryReader, baseAddress: Long, strg: Strg) {
         return result
     }
 
-    private fun readFileTable(reader: IBinaryReader, baseAddress: Long): ObservableList<IEntry> {
+    private fun readFileTable(reader: IBinaryReader, baseAddress: Long, csar: Csar): ObservableList<IEntry> {
         val result = FXCollections.observableArrayList<IEntry>()
         reader.seek(baseAddress)
         val numEntries = reader.readInt()
         for (i in 0 until numEntries) {
             reader.seek(baseAddress + i * 0x8 + 8)
             val entryAddress = baseAddress + reader.readInt()
-            result.add(readFileEntry(reader, entryAddress))
+            result.add(readFileEntry(reader, entryAddress, csar))
         }
         return result
     }
 
-    private fun readFileEntry(reader: IBinaryReader, entryAddress: Long): IEntry {
+    private fun readFileEntry(reader: IBinaryReader, entryAddress: Long, csar: Csar): IEntry {
         reader.seek(entryAddress)
         return when (reader.readInt()) {
-            0x220C -> InternalFileReference(reader, entryAddress)
+            0x220C -> InternalFileReference(reader, entryAddress, csar)
             0x220D -> ExternalFileReference(reader, entryAddress)
             else -> throw IllegalArgumentException("Unknown entry type in file table!")
         }

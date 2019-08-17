@@ -1,16 +1,17 @@
 package com.thane98.bcsarview.core.structs.entries
 
 import com.thane98.bcsarview.core.interfaces.*
+import com.thane98.bcsarview.core.io.retrievers.InternalFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
 import javafx.beans.property.SimpleLongProperty
 import javafx.beans.property.SimpleObjectProperty
 import java.nio.file.Path
 
-class InternalFileReference(reader: IBinaryReader, baseAddress: Long) : IEntry {
+class InternalFileReference(reader: IBinaryReader, baseAddress: Long, csar: Csar) : IEntry, IFileRetriever {
     var fileAddress: Long = 0
     var fileSize: Long = 0
     val unknown = SimpleObjectProperty<ByteArray>()
-    val retriever: IFileRetriever? = null
+    var retriever: IFileRetriever
 
     init {
         reader.seek(baseAddress + 4)
@@ -19,6 +20,7 @@ class InternalFileReference(reader: IBinaryReader, baseAddress: Long) : IEntry {
         reader.seek(fileInfoAddress)
         fileAddress = reader.readInt().toLong()
         fileSize = reader.readInt().toLong()
+        retriever = InternalFileRetriever(csar, this)
     }
 
     override fun serializeTo(csar: Csar, writer: IBinaryWriter) {
@@ -29,5 +31,7 @@ class InternalFileReference(reader: IBinaryReader, baseAddress: Long) : IEntry {
         writer.writeInt(fileSize.toInt())
     }
 
+    override fun retrieve(): ByteArray { return retriever.retrieve() }
+    override fun open(): IBinaryReader { return retriever.open() }
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitInternalFileReference(this) }
 }

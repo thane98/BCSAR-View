@@ -27,12 +27,13 @@ class Strg(reader: IBinaryReader, baseAddress: Long) {
     }
 
     fun allocateEntry(name: String, resourceType: Int): StrgEntry {
-        val index = entries.indexOfLast { it.type == resourceType }
-        val prevEntry = entries[index]
-        val entry = StrgEntry(name, prevEntry.resourceId + 1, resourceType, index + 1)
-        for (i in index + 1 until entries.size)
-            entries[i].index += 1
-        entries.add(index + 1, entry)
+        var max = 0
+        for (entry in entries) {
+            if (entry.type == resourceType && entry.resourceId > max)
+                max = entry.resourceId
+        }
+        val entry = StrgEntry(name, max + 1, resourceType, entries.size)
+        entries.add(entry)
         return entry
     }
 

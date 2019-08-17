@@ -24,7 +24,7 @@ class ConfigController : Initializable {
     @FXML
     private lateinit var table: TableView<AudioConfig>
     @FXML
-    private lateinit var nameColumn: TableColumn<AudioConfig, String>
+    private lateinit var nameColumn: TableColumn<AudioConfig, StrgEntry>
     @FXML
     private lateinit var playerColumn: TableColumn<AudioConfig, String>
     @FXML
@@ -38,7 +38,8 @@ class ConfigController : Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory {SimpleStringProperty(it.value.toString()) }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<AudioConfig>() }
         playerColumn.setCellValueFactory { SimpleStringProperty(it.value.player.value.toString()) }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())

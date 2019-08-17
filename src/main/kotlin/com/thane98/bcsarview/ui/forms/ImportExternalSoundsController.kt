@@ -51,10 +51,10 @@ class ImportExternalSoundsController(private val destinationCsar: Csar): Initial
     @FXML
     private fun import() {
         try {
-//            destinationCsar.importExternalSounds(
-//                externalSoundSelectionView.selectionModel.selectedItems,
-//                playerBox.selectionModel.selectedItem
-//            )
+            destinationCsar.importExternalSounds(
+                externalSoundSelectionView.selectionModel.selectedItems,
+                playerBox.selectionModel.selectedItem
+            )
             stage.close()
         } catch (ex: Exception) {
             showImportFailureAlert(ex)

@@ -10,7 +10,6 @@ interface IBinaryReader : Closeable {
     fun readInt(): Int
     fun readFloat(): Float
     fun read(numBytes: Int): ByteBuffer
-    fun length(): Long
     fun seek(position: Long)
     fun tell(): Long
 }

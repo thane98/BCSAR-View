@@ -3,6 +3,7 @@ package com.thane98.bcsarview.core.structs.entries
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntryVisitor
+import com.thane98.bcsarview.core.interfaces.IFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.Info
 import com.thane98.bcsarview.core.structs.Strg

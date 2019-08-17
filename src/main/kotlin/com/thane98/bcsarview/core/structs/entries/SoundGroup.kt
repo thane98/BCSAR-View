@@ -1,9 +1,6 @@
 package com.thane98.bcsarview.core.structs.entries
 
-import com.thane98.bcsarview.core.interfaces.IBinaryReader
-import com.thane98.bcsarview.core.interfaces.IBinaryWriter
-import com.thane98.bcsarview.core.interfaces.IEntry
-import com.thane98.bcsarview.core.interfaces.IEntryVisitor
+import com.thane98.bcsarview.core.interfaces.*
 import com.thane98.bcsarview.core.io.ByteListWriter
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.Info
@@ -32,6 +29,7 @@ class SoundGroup(): IEntry {
     }
 
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitSoundGroup(this) }
+
     override fun toString(): String {
         return if (strgEntry.value != null)
             strgEntry.value.name

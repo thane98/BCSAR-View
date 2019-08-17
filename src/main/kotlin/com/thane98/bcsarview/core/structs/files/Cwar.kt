@@ -6,12 +6,12 @@ import javafx.beans.property.SimpleIntegerProperty
 
 private data class ArchiveEntry(val address: Long, val size: Long)
 
-class Cwar(reader: IBinaryReader, baseAddress: Long) {
+class Cwar(reader: IBinaryReader) {
     val numFiles = SimpleIntegerProperty()
     private val files: List<ArchiveEntry>
 
     init {
-        reader.seek(baseAddress)
+        val baseAddress = reader.tell()
         reader.verifyMagic("CWAR")
         reader.seek(baseAddress + 0x18)
         val infoAddress = baseAddress + reader.readInt() + 8

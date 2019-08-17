@@ -14,6 +14,8 @@ import javafx.scene.control.*
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import java.net.URL
+import java.nio.file.CopyOption
+import java.nio.file.Files
 import java.util.*
 
 class MainWindowController: Initializable {
@@ -75,7 +77,13 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun saveFile() {
-        csar.value.save(csar.value.path)
+        val oldPath = csar.value.path
+        val tempPath = oldPath.resolveSibling("BCSARVIEW_TEMP_${oldPath.fileName}")
+        Files.move(oldPath, tempPath)
+        csar.value.path = tempPath
+        csar.value.save(oldPath)
+        csar.value.path = oldPath
+        Files.delete(tempPath)
     }
 
     @FXML
