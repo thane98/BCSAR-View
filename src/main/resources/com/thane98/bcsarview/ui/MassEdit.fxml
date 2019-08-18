@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.Scene?>
+<?import javafx.stage.Stage?>
+<Stage fx:id="stage" xmlns:fx="http://javafx.com/fxml/1">
+    <scene>
+        <Scene>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                  prefHeight="500.0"
+                  spacing="15.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8.0.202-ea">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </padding>
+                <TextField fx:id="searchField" promptText="Search..." />
+                <ListView fx:id="selectionView"/>
+                <VBox fx:id="editorContainer" />
+                <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                    <buttons>
+                        <Button fx:id="commitButton" mnemonicParsing="false" text="Commit" onAction="#commit"/>
+                        <Button layoutX="505.0" layoutY="10.0" mnemonicParsing="false" text="Cancel"
+                                onAction="#cancel"/>
+                    </buttons>
+                </ButtonBar>
+            </VBox>
+        </Scene>
+    </scene>
+</Stage>

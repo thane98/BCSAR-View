@@ -1,8 +1,11 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.Player
+import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.TableColumn
@@ -12,11 +15,9 @@ import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
 
-class PlayerController : Initializable {
+class PlayerController : AbstractEntryController<Player>() {
     @FXML
-    private lateinit var table: TableView<Player>
-    @FXML
-    private lateinit var nameColumn: TableColumn<Player, String>
+    private lateinit var nameColumn: TableColumn<Player, StrgEntry>
     @FXML
     private lateinit var soundLimitColumn: TableColumn<Player, Number>
     @FXML
@@ -25,7 +26,8 @@ class PlayerController : Initializable {
     private lateinit var heapSizeColumn: TableColumn<Player, Number>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
-        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<Player>() }
         soundLimitColumn.setCellValueFactory { it.value.soundLimit }
         soundLimitColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         unknownColumn.setCellValueFactory { it.value.unknown }
@@ -34,5 +36,5 @@ class PlayerController : Initializable {
         heapSizeColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
     }
 
-    fun onFileChange(csar: Csar?) { table.items = csar?.players }
+    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.players) }
 }

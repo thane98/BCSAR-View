@@ -13,6 +13,9 @@ import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import java.lang.Exception
@@ -35,6 +38,16 @@ class MainWindowController: Initializable {
     @FXML
     private lateinit var tabs: TabPane
     @FXML
+    private lateinit var saveButton: Button
+    @FXML
+    private lateinit var saveAsButton: Button
+    @FXML
+    private lateinit var closeButton: Button
+    @FXML
+    private lateinit var toolBarSpacer: Pane
+    @FXML
+    private lateinit var searchField: TextField
+    @FXML
     private lateinit var configsController: ConfigController
     @FXML
     private lateinit var soundSetsController: SoundSetController
@@ -52,10 +65,14 @@ class MainWindowController: Initializable {
     private val csar = SimpleObjectProperty<Csar>()
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
+        HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
         editMenu.disableProperty().bind(Bindings.isNull(csar))
         saveMenuItem.disableProperty().bind(Bindings.isNull(csar))
+        saveButton.disableProperty().bind(Bindings.isNull(csar))
         saveAsMenuItem.disableProperty().bind(Bindings.isNull(csar))
+        saveAsButton.disableProperty().bind(Bindings.isNull(csar))
         closeMenuItem.disableProperty().bind(Bindings.isNull(csar))
+        closeButton.disableProperty().bind(Bindings.isNull(csar))
         configsController.csar.bind(csar)
         soundSetsController.csar.bind(csar)
         banksController.csar.bind(csar)
@@ -70,6 +87,17 @@ class MainWindowController: Initializable {
             groupsController.onFileChange(csar.value)
             playersController.onFileChange(csar.value)
         }
+    }
+
+    @FXML
+    private fun applyFilter() {
+        soundSetsController.applyFilter(searchField.text)
+        sequenceSetsController.applyFilter(searchField.text)
+        configsController.applyFilter(searchField.text)
+        banksController.applyFilter(searchField.text)
+        archivesController.applyFilter(searchField.text)
+        groupsController.applyFilter(searchField.text)
+        playersController.applyFilter(searchField.text)
     }
 
     @FXML
@@ -88,7 +116,6 @@ class MainWindowController: Initializable {
             Files.move(oldPath, tempPath)
             csar.value.path = tempPath
             csar.value.save(oldPath)
-            csar.value.path = oldPath
             Files.delete(tempPath)
         }.run()
     }
@@ -121,6 +148,15 @@ class MainWindowController: Initializable {
     private fun importArchive() {
         val loader = FXMLLoader()
         loader.setController(ImportArchiveController(csar.value))
+        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
+    }
+
+    @FXML
+    private fun importSoundSet() {
+        val loader = FXMLLoader()
+        loader.setController(ImportSoundSetController(csar.value))
         val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
         applyStyles(stage.scene)
         stage.showAndWait()

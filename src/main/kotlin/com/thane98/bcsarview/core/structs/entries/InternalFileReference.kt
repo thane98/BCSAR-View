@@ -7,13 +7,17 @@ import javafx.beans.property.SimpleLongProperty
 import javafx.beans.property.SimpleObjectProperty
 import java.nio.file.Path
 
-class InternalFileReference(reader: IBinaryReader, baseAddress: Long, csar: Csar) : IEntry, IFileRetriever {
+class InternalFileReference() : IEntry, IFileRetriever {
     var fileAddress: Long = 0
     var fileSize: Long = 0
     val unknown = SimpleObjectProperty<ByteArray>()
-    var retriever: IFileRetriever
+    lateinit var retriever: IFileRetriever
 
     init {
+        unknown.value = byteArrayOf(0, 0, 0, 0, 0, 0x1F, 0, 0)
+    }
+
+    constructor(reader: IBinaryReader, baseAddress: Long, csar: Csar): this() {
         reader.seek(baseAddress + 4)
         val fileInfoAddress = baseAddress + reader.readInt() + 4
         unknown.value = reader.read(8).array()

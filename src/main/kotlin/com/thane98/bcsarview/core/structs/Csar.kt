@@ -99,6 +99,7 @@ class Csar(var path: Path) {
                 fixHeader(writer, strg.size, info.size, filePartitionSize)
             }
         }
+        path = destination
     }
 
     private fun writeHeader(reader: IBinaryReader, writer: IBinaryWriter) {
@@ -144,6 +145,7 @@ class Csar(var path: Path) {
             if (entry is InternalFileReference) {
                 while (writer.tell() % 0x20 != 0) writer.writeByte(0)
                 writer.write(entry.retriever.retrieve())
+                entry.retriever = InternalFileRetriever(this, entry)
             }
         }
         val filePartitionSize = writer.tell() - baseAddress
@@ -170,7 +172,7 @@ class Csar(var path: Path) {
                 warReader.use {
                     val wsd = Cwsd(wsdReader)
                     val war = Cwar(warReader)
-                    Files.write(destination, war.extractFile(warReader, wsd.entries[wsdIndex].archiveIndex))
+                    Files.write(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
                 }
             }
         }
@@ -192,7 +194,7 @@ class Csar(var path: Path) {
                 assert(wsd.entries.size == sounds.size)
                 for (i in 0 until sounds.size) {
                     val destinationPath = Paths.get(destination.toString(), "${sounds[i]}.cwav")
-                    Files.write(destinationPath, war.extractFile(warReader, wsd.entries[i].archiveIndex))
+                    Files.write(destinationPath, war.files[wsd.entries[i].archiveIndex])
                 }
             }
         }
@@ -233,15 +235,18 @@ class Csar(var path: Path) {
     }
 
     fun importArchives(source: Csar, archives: List<Archive>, player: Player) {
-        for (archive in archives) {
-            importInternalFile(source, archive.file.value)
-            archive.strgEntry.value = strg.allocateEntry(archive.strgEntry.value.name, archive.strgEntry.value.type)
-            this.archives.add(archive)
+        for (archive in archives)
+            importArchive(source, archive, player)
+    }
 
-            val sets = source.findAssociatedSets(archive)
-            for (set in sets)
-                importSoundSet(source, set, player, this.archives.lastIndex)
-        }
+    private fun importArchive(source: Csar, archive: Archive, player: Player) {
+        importInternalFile(source, archive.file.value)
+        archive.strgEntry.value = strg.allocateEntry(archive.strgEntry.value.name, archive.strgEntry.value.type)
+        this.archives.add(archive)
+
+        val sets = source.findAssociatedSets(archive)
+        for (set in sets)
+            importSoundSet(source, set, player, this.archives.lastIndex)
     }
 
     private fun importInternalFile(source: Csar, record: InternalFileReference) {
@@ -266,8 +271,57 @@ class Csar(var path: Path) {
     }
 
     private fun importSoundSet(source: Csar, set: SoundSet, player: Player, archiveId: Int) {
-        val sounds = source.findAssociatedSounds(set)
+        importSetFileAsPartial(source, set, archiveId)
+        importSoundsFromSoundSet(source, set, player)
+        soundSets.add(set)
+    }
+
+    private fun importSoundSet(source: Csar, set: SoundSet, player: Player) {
+        val archive = Archive()
+        archive.file.value = InternalFileReference()
+        archive.strgEntry.value = strg.allocateEntry("WARC_$set", 5)
+        archive.unknown.value = 3 // Seems to be right for named archives
+        archive.entryCount.value = set.soundEndIndex.value - set.soundStartIndex.value + 1
+        importSetFileAsExclusive(source, set, archive.file.value, archives.size)
+        importInternalFile(source, archive.file.value)
+        archives.add(archive)
+        set.archive.value = archive
+
+        importSoundsFromSoundSet(source, set, player)
+        soundSets.add(set)
+    }
+
+    private fun importSetFileAsExclusive(source: Csar, set: SoundSet, newWarRecord: InternalFileReference, archiveId: Int) {
         importInternalFile(source, set.file.value)
+        val wsdReader = set.file.value.open()
+        val warReader = set.archive.value.file.value.open()
+        wsdReader.use {
+            warReader.use {
+                val wsd = Cwsd(wsdReader)
+                val war = Cwar(warReader)
+                val newWar = Cwar()
+                wsd.transferTo(war, newWar, archiveId)
+                set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
+
+                val rawNewWar = newWar.serialize(byteOrder)
+                newWarRecord.fileSize = rawNewWar.size.toLong()
+                newWarRecord.retriever = InMemoryFileRetriever(rawNewWar, byteOrder)
+            }
+        }
+    }
+
+    private fun importSetFileAsPartial(source: Csar, set: SoundSet, archiveId: Int) {
+        importInternalFile(source, set.file.value)
+        val wsdReader = set.file.value.open()
+        wsdReader.use {
+            val wsd = Cwsd(wsdReader)
+            wsd.moveToArchive(archiveId)
+            set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
+        }
+    }
+
+    private fun importSoundsFromSoundSet(source: Csar, set: SoundSet, player: Player) {
+        val sounds = source.findAssociatedSounds(set)
         set.strgEntry.value = strg.allocateEntry(set.strgEntry.value.name, set.strgEntry.value.type)
         set.soundStartIndex.value = configs.size
         set.soundEndIndex.value = configs.size + sounds.size - 1
@@ -276,16 +330,14 @@ class Csar(var path: Path) {
             sound.strgEntry.value = strg.allocateEntry(sound.strgEntry.value.name, sound.strgEntry.value.type)
             configs.add(sound)
         }
-        val wsdReader = set.file.value.open()
-        wsdReader.use {
-            val wsd = Cwsd(wsdReader)
-            wsd.moveToArchive(archiveId)
-            set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
-        }
-        soundSets.add(set)
     }
 
     private fun findAssociatedSets(archive: Archive): List<SoundSet> {
         return soundSets.filtered { it.archive.value == archive }
+    }
+
+    fun importSoundSets(source: Csar, sets: List<SoundSet>, player: Player) {
+        for (set in sets)
+            importSoundSet(source, set, player)
     }
 }

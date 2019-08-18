@@ -38,7 +38,7 @@
                </padding>
                <Label fx:id="messageLabel" text="Message"/>
                <Label layoutX="10.0" layoutY="20.0" text="The exception stacktrace is:"/>
-               <TextArea fx:id="errorField" prefHeight="200.0" prefWidth="200.0"/>
+               <TextArea VBox.vgrow="ALWAYS" fx:id="errorField" prefHeight="200.0" prefWidth="200.0"/>
                <ButtonBar prefHeight="40.0" prefWidth="200.0">
                   <buttons>
                      <Button defaultButton="true" mnemonicParsing="false" onAction="#closeDialog" text="OK"/>

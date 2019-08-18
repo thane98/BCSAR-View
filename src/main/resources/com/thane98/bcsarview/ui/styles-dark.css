@@ -7,6 +7,18 @@
     -fx-stroke: white;
 }
 
+.combo-box-base .text {
+    -fx-fill: white;
+}
+
+.combo-box-base:hover .text {
+    -fx-fill: white;
+}
+
+.table-cell > .combo-box-base .text {
+    -fx-fill: white;
+}
+
 #finderBox, #statusBar {
     -fx-background-color: #1e1e1e;
     background_color: #1e1e1e;

@@ -8,6 +8,7 @@ import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import com.thane98.bcsarview.ui.utils.applyStyles
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.*
@@ -18,9 +19,7 @@ import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
 
-class SoundSetController: Initializable {
-    @FXML
-    private lateinit var table: TableView<SoundSet>
+class SoundSetController : AbstractEntryController<SoundSet>() {
     @FXML
     private lateinit var nameColumn: TableColumn<SoundSet, StrgEntry>
     @FXML
@@ -93,5 +92,5 @@ class SoundSetController: Initializable {
         alert.showAndWait()
     }
 
-    fun onFileChange(csar: Csar?) { table.items = csar?.soundSets }
+    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.soundSets) }
 }

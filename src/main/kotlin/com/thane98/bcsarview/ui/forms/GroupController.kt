@@ -1,9 +1,12 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.SoundGroup
+import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.*
@@ -13,11 +16,9 @@ import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
 
-class GroupController : Initializable {
+class GroupController : AbstractEntryController<SoundGroup>() {
     @FXML
-    private lateinit var table: TableView<SoundGroup>
-    @FXML
-    private lateinit var nameColumn: TableColumn<SoundGroup, String>
+    private lateinit var nameColumn: TableColumn<SoundGroup, StrgEntry>
     @FXML
     private lateinit var unknownColumn: TableColumn<SoundGroup, Number>
 
@@ -25,7 +26,8 @@ class GroupController : Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<SoundGroup>() }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
     }
@@ -60,5 +62,5 @@ class GroupController : Initializable {
         return chooser
     }
 
-    fun onFileChange(csar: Csar?) { table.items = csar?.groups }
+    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.groups) }
 }

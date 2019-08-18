@@ -7,7 +7,7 @@ import com.thane98.bcsarview.core.io.verifyMagic
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 
-class CwsdEntry(val archiveIndex: Int, var archiveId: Int)
+class CwsdEntry(var archiveIndex: Int, var archiveId: Int)
 
 class Cwsd(reader: IBinaryReader) {
     val entries: List<CwsdEntry>
@@ -31,6 +31,14 @@ class Cwsd(reader: IBinaryReader) {
     fun moveToArchive(archiveId: Int) {
         for (entry in entries)
             entry.archiveId = archiveId
+    }
+
+    fun transferTo(source: Cwar, destination: Cwar, archiveId: Int) {
+        for (i in 0 until entries.size) {
+            destination.files.add(source.files[entries[i].archiveIndex])
+            entries[i].archiveId = archiveId
+            entries[i].archiveIndex = i
+        }
     }
 
     private fun readEntryTable(reader: IBinaryReader, baseAddress: Long): List<CwsdEntry> {

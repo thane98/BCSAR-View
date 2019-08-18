@@ -1,10 +1,13 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.Bank
 import com.thane98.bcsarview.ui.utils.ByteArrayTableCell
+import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
+import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.*
@@ -14,11 +17,9 @@ import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
 
-class BankController : Initializable {
+class BankController : AbstractEntryController<Bank>() {
     @FXML
-    private lateinit var table: TableView<Bank>
-    @FXML
-    private lateinit var nameColumn: TableColumn<Bank, String>
+    private lateinit var nameColumn: TableColumn<Bank, StrgEntry>
     @FXML
     private lateinit var unknownColumn: TableColumn<Bank, ByteArray>
     @FXML
@@ -28,7 +29,8 @@ class BankController : Initializable {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { SimpleStringProperty(it.value.toString()) }
+        nameColumn.setCellValueFactory { it.value.strgEntry }
+        nameColumn.setCellFactory { StrgEntryTableCell<Bank>() }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.setCellFactory { ByteArrayTableCell<Bank>() }
         archiveColumn.setCellValueFactory { SimpleStringProperty(it.value.archive.value?.toString()) }
@@ -64,5 +66,5 @@ class BankController : Initializable {
         return chooser
     }
 
-    fun onFileChange(csar: Csar?) { table.items = csar?.banks }
+    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.banks) }
 }

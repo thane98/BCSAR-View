@@ -22,6 +22,8 @@ class StrgEntryTableCell<T> : TableCell<T, StrgEntry>() {
     }
 
     override fun startEdit() {
+        if (item == null)
+            return
         super.startEdit()
         val editor = TextField()
         editor.text = item?.name

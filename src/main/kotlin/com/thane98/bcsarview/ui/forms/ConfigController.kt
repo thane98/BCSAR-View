@@ -4,29 +4,32 @@ import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
-import com.thane98.bcsarview.ui.utils.ByteArrayTableCell
+import com.thane98.bcsarview.core.structs.entries.Player
+import com.thane98.bcsarview.ui.Main
+import com.thane98.bcsarview.ui.utils.ComboBoxTableCell
 import com.thane98.bcsarview.ui.utils.HexAreaTableCell
 import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
+import com.thane98.bcsarview.ui.utils.applyStyles
+import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.stage.FileChooser
+import javafx.stage.Stage
 import javafx.util.converter.NumberStringConverter
 import java.lang.IllegalArgumentException
 import java.net.URL
 import java.util.*
 
-
-class ConfigController : Initializable {
-    @FXML
-    private lateinit var table: TableView<AudioConfig>
+class ConfigController : AbstractEntryController<AudioConfig>() {
     @FXML
     private lateinit var nameColumn: TableColumn<AudioConfig, StrgEntry>
     @FXML
-    private lateinit var playerColumn: TableColumn<AudioConfig, String>
+    private lateinit var playerColumn: TableColumn<AudioConfig, Player>
     @FXML
     private lateinit var unknownColumn: TableColumn<AudioConfig, Number>
     @FXML
@@ -38,7 +41,8 @@ class ConfigController : Initializable {
         setupContextMenu()
         nameColumn.setCellValueFactory { it.value.strgEntry }
         nameColumn.setCellFactory { StrgEntryTableCell<AudioConfig>() }
-        playerColumn.setCellValueFactory { SimpleStringProperty(it.value.player.value.toString()) }
+        playerColumn.setCellValueFactory { it.value.player }
+        playerColumn.setCellFactory { ComboBoxTableCell<AudioConfig, Player>(csar.value.players) }
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
@@ -50,14 +54,26 @@ class ConfigController : Initializable {
             val row = TableRow<AudioConfig>()
             val contextMenu = ContextMenu()
             val dumpItem = MenuItem("Dump")
-            contextMenu.items.addAll(dumpItem)
+            val massEditMenu = Menu("Mass Edit")
+            val massEditPlayersItem = MenuItem("Players")
             dumpItem.setOnAction { dumpSound(row.item) }
+            massEditPlayersItem.setOnAction { openMassEditPlayers() }
+            massEditMenu.items.addAll(massEditPlayersItem)
+            contextMenu.items.addAll(dumpItem, massEditMenu)
             row.setOnContextMenuRequested { e ->
                 if (row.item != null && row.item.configType != ConfigType.EXTERNAL_SOUND)
                     contextMenu.show(row, e.screenX, e.screenY)
             }
             row
         }
+    }
+
+    private fun openMassEditPlayers() {
+        val loader = FXMLLoader()
+        loader.setController(MassEditPlayersForSoundsController(csar.value))
+        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("MassEdit.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
     }
 
     private fun dumpSound(config: AudioConfig) {
@@ -78,5 +94,5 @@ class ConfigController : Initializable {
             csar.value.dumpSound(config, result.toPath())
     }
 
-    fun onFileChange(csar: Csar?) { table.items = csar?.configs }
+    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.configs) }
 }

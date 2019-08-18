@@ -11,13 +11,20 @@ import javafx.scene.text.Font
 import javafx.stage.Stage
 import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
+import java.text.ParseException
 
 class Main : Application() {
+    // Suppressing two kinds of exceptions here
+    // - InvocationTargetExceptions, will already catch the nested exception in this case.
+    // - ParseException, thrown by NumberStringConverter when user enters bad input. Not worth a dialog.
+    private fun needToNotifyUser(throwable: Throwable): Boolean {
+        return !(throwable is RuntimeException && (throwable.cause is InvocationTargetException || throwable.cause is ParseException))
+    }
 
     override fun start(stage: Stage) {
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
             // Fix to avoid duplicate dialogs when a thread spawned by the JavaFX application thread dies.
-            if (!(throwable is RuntimeException && throwable.cause is InvocationTargetException)) {
+            if (needToNotifyUser(throwable)) {
                 Platform.runLater {
                     val dialog = createErrorDialog(throwable, "Error Occurred")
                     dialog.showAndWait()
