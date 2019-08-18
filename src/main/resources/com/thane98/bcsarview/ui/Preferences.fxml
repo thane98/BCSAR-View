@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.stage.Stage?>
+<?import javafx.scene.Scene?>
+<Stage fx:id="stage" title="Preferences" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thane98.bcsarview.ui.forms.PreferencesController">
+    <scene>
+        <Scene>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="159.0"
+                  prefWidth="484.0" spacing="10.0">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                </padding>
+                <GridPane hgap="10.0" minHeight="-Infinity" minWidth="-Infinity" vgap="10.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="308.0" minWidth="10.0" prefWidth="117.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="420.0" minWidth="6.0" prefWidth="322.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="Theme"/>
+                    <ComboBox fx:id="themeBox" prefHeight="35.0" prefWidth="334.0" GridPane.columnIndex="1"/>
+                    <Label layoutX="10.0" layoutY="16.0" text="Logging Level" GridPane.rowIndex="1"/>
+                    <ComboBox fx:id="loggingLevelBox" prefHeight="35.0" prefWidth="327.0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                </GridPane>
+                <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                    <buttons>
+                        <Button mnemonicParsing="false" text="Confirm" onAction="#confirm"/>
+                        <Button layoutX="356.0" layoutY="15.0" mnemonicParsing="false" text="Cancel" onAction="#cancel"/>
+                    </buttons>
+                </ButtonBar>
+            </VBox>
+        </Scene>
+    </scene>
+</Stage>

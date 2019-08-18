@@ -13,8 +13,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import java.lang.IllegalArgumentException
 
-abstract class BaseSet: IEntry {
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
+abstract class BaseSet: AbstractNamedEntry() {
     val soundStartIndex = SimpleIntegerProperty()
     val soundEndIndex = SimpleIntegerProperty()
     val soundType = SimpleIntegerProperty()

@@ -92,5 +92,5 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
         alert.showAndWait()
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.soundSets) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.soundSets) }
 }

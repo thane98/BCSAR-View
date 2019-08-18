@@ -1,6 +1,8 @@
 package com.thane98.bcsarview.ui
 
+import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.ui.forms.*
 import com.thane98.bcsarview.ui.utils.applyStyles
 import com.thane98.bcsarview.ui.utils.createBcsarOpenDialog
@@ -63,8 +65,10 @@ class MainWindowController: Initializable {
     private lateinit var playersController: PlayerController
 
     private val csar = SimpleObjectProperty<Csar>()
+    private lateinit var controllers: List<AbstractEntryController<out AbstractNamedEntry>>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
+        Configuration.theme.addListener { _ -> applyStyles(tabs.scene) }
         HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
         editMenu.disableProperty().bind(Bindings.isNull(csar))
         saveMenuItem.disableProperty().bind(Bindings.isNull(csar))
@@ -78,26 +82,25 @@ class MainWindowController: Initializable {
         banksController.csar.bind(csar)
         archivesController.csar.bind(csar)
         groupsController.csar.bind(csar)
+        controllers = listOf(
+            configsController,
+            soundSetsController,
+            sequenceSetsController,
+            banksController,
+            archivesController,
+            groupsController,
+            playersController
+        )
         csar.addListener { _ ->
-            soundSetsController.onFileChange(csar.value)
-            sequenceSetsController.onFileChange(csar.value)
-            configsController.onFileChange(csar.value)
-            banksController.onFileChange(csar.value)
-            archivesController.onFileChange(csar.value)
-            groupsController.onFileChange(csar.value)
-            playersController.onFileChange(csar.value)
+            for (controller in controllers)
+                controller.onFileChange(csar.value)
         }
     }
 
     @FXML
     private fun applyFilter() {
-        soundSetsController.applyFilter(searchField.text)
-        sequenceSetsController.applyFilter(searchField.text)
-        configsController.applyFilter(searchField.text)
-        banksController.applyFilter(searchField.text)
-        archivesController.applyFilter(searchField.text)
-        groupsController.applyFilter(searchField.text)
-        playersController.applyFilter(searchField.text)
+        for (controller in controllers)
+            controller.applyFilter(searchField.text)
     }
 
     @FXML
@@ -140,6 +143,13 @@ class MainWindowController: Initializable {
     }
 
     @FXML
+    private fun openPreferences() {
+        val stage = FXMLLoader.load<Stage>(this.javaClass.getResource("Preferences.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
+    }
+
+    @FXML
     private fun quit() {
         Platform.exit()
     }
@@ -178,5 +188,16 @@ class MainWindowController: Initializable {
         val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("AddExternalSound.fxml"))
         applyStyles(stage.scene)
         stage.showAndWait()
+    }
+
+    @FXML
+    private fun openMassRename() {
+        val currentController = controllers[tabs.selectionModel.selectedIndex]
+        val loader = FXMLLoader()
+        loader.setController(MassRenameController(currentController.retrieveStrgEntries()))
+        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("MassRename.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
+        currentController.refresh()
     }
 }

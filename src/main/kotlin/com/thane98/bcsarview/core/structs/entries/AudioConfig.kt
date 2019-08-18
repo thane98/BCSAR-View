@@ -13,13 +13,12 @@ import javafx.beans.property.*
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 
-class AudioConfig() : IEntry {
+class AudioConfig() : AbstractNamedEntry() {
     var configType: ConfigType = ConfigType.INTERNAL_SOUND
     val file = SimpleObjectProperty<IEntry>()
     val player = SimpleObjectProperty<Player>()
     val unknown = SimpleIntegerProperty()
     val unknownTwo = SimpleObjectProperty<ByteArray>()
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
     val unknownThree = SimpleObjectProperty<ByteArray>()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg, endAddress: Long): this() {

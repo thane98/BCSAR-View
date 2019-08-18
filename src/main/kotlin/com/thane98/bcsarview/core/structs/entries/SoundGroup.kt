@@ -10,10 +10,9 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 
-class SoundGroup(): IEntry {
+class SoundGroup(): AbstractNamedEntry() {
     val file = SimpleObjectProperty<InternalFileReference>()
     val unknown = SimpleIntegerProperty()
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {
         reader.seek(baseAddress)

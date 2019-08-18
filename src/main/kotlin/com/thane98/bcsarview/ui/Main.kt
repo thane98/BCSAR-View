@@ -30,6 +30,7 @@ class Main : Application() {
                     dialog.showAndWait()
                 }
             }
+            throwable.printStackTrace()
         }
 
         Font.loadFont(this.javaClass.getResourceAsStream("DejaVuSans.ttf"), 14.0)

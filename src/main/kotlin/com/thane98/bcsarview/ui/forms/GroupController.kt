@@ -62,5 +62,5 @@ class GroupController : AbstractEntryController<SoundGroup>() {
         return chooser
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.groups) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.groups) }
 }

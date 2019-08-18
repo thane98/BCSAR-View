@@ -10,10 +10,9 @@ import com.thane98.bcsarview.core.structs.StrgEntry
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 
-class Player(): IEntry {
+class Player(): AbstractNamedEntry() {
     val soundLimit = SimpleIntegerProperty()
     val unknown = SimpleIntegerProperty()
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
     val heapSize = SimpleIntegerProperty()
 
     constructor(reader: IBinaryReader, strg: Strg) : this() {

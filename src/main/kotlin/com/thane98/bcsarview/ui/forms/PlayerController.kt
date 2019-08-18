@@ -36,5 +36,5 @@ class PlayerController : AbstractEntryController<Player>() {
         heapSizeColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.players) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.players) }
 }

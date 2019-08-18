@@ -22,6 +22,8 @@
             <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" text="Save As" onAction="#saveFileAs" />
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close" onAction="#close" />
+            <SeparatorMenuItem mnemonicParsing="false" />
+            <MenuItem mnemonicParsing="false" text="Preferences" onAction="#openPreferences" />
             <SeparatorMenuItem mnemonicParsing="false"/>
             <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit" />
         </Menu>
@@ -32,6 +34,7 @@
                 <MenuItem mnemonicParsing="false" text="External Sound" onAction="#importExternalSound" />
             </Menu>
             <MenuItem mnemonicParsing="false" text="Add External Sound" onAction="#addExternalSound" />
+            <MenuItem mnemonicParsing="false" text="Mass Rename" onAction="#openMassRename" />
         </Menu>
     </MenuBar>
     <ToolBar>

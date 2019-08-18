@@ -66,5 +66,5 @@ class BankController : AbstractEntryController<Bank>() {
         return chooser
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.banks) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.banks) }
 }

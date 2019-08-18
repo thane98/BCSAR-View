@@ -26,5 +26,5 @@ class SequenceSetController: AbstractEntryController<SequenceSet>() {
         unknownThreeColumn.setCellValueFactory { SimpleStringProperty(it.value.unknownThree.toString()) }
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.sequenceSets) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.sequenceSets) }
 }

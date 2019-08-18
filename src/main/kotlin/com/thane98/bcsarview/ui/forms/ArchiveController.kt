@@ -66,5 +66,5 @@ class ArchiveController : AbstractEntryController<Archive>() {
         return chooser
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.archives) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.archives) }
 }

@@ -12,10 +12,9 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 
-class Bank(): IEntry {
+class Bank(): AbstractNamedEntry() {
     val file = SimpleObjectProperty<InternalFileReference>()
     val unknown = SimpleObjectProperty<ByteArray>()
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
     val archive = SimpleObjectProperty<Archive>()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {

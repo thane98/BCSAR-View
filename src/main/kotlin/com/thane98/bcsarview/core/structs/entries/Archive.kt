@@ -11,10 +11,9 @@ import com.thane98.bcsarview.core.structs.StrgEntry
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 
-class Archive(): IEntry {
+class Archive(): AbstractNamedEntry() {
     val file = SimpleObjectProperty<InternalFileReference>()
     val unknown = SimpleIntegerProperty()
-    val strgEntry = SimpleObjectProperty<StrgEntry>()
     val entryCount = SimpleIntegerProperty()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {

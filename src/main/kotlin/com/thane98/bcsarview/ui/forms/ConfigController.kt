@@ -94,5 +94,5 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
             csar.value.dumpSound(config, result.toPath())
     }
 
-    fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.configs) }
+    override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.configs) }
 }
