@@ -6,6 +6,7 @@ import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.BinaryReader
 import com.thane98.bcsarview.core.io.BinaryWriter
+import com.thane98.bcsarview.core.io.determineByteOrder
 import com.thane98.bcsarview.core.io.retrievers.ImportedFileRetriever
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
 import com.thane98.bcsarview.core.io.retrievers.InternalFileRetriever
@@ -14,8 +15,6 @@ import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
 import javafx.collections.ObservableList
-import java.lang.IllegalArgumentException
-import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
@@ -42,7 +41,7 @@ class Csar(var path: Path) {
         val channel = FileChannel.open(path, StandardOpenOption.READ)
         try {
             channel.verifyMagic("CSAR")
-            byteOrder = determineByteOrder(channel)
+            byteOrder = channel.determineByteOrder()
             val reader = BinaryReader(channel, byteOrder)
             reader.seek(0x18)
             val strgAddress = reader.readInt().toLong()
@@ -64,15 +63,6 @@ class Csar(var path: Path) {
         } finally {
             channel.close()
         }
-    }
-
-    private fun determineByteOrder(channel: FileChannel): ByteOrder {
-        val buffer = ByteBuffer.allocate(2)
-        channel.read(buffer)
-        return if (buffer[0].toInt() == 0xFE)
-            ByteOrder.BIG_ENDIAN
-        else
-            ByteOrder.LITTLE_ENDIAN
     }
 
     fun reopen(): IBinaryReader {
@@ -144,10 +134,12 @@ class Csar(var path: Path) {
         for (entry in files) {
             if (entry is InternalFileReference) {
                 while (writer.tell() % 0x20 != 0) writer.writeByte(0)
+                assert(baseAddress + entry.fileAddress + 8 == writer.tell().toLong())
                 writer.write(entry.retriever.retrieve())
                 entry.retriever = InternalFileRetriever(this, entry)
             }
         }
+        fileAddress = baseAddress.toLong()
         val filePartitionSize = writer.tell() - baseAddress
         writer.seek(baseAddress + 4)
         writer.writeInt(filePartitionSize)
@@ -166,14 +158,8 @@ class Csar(var path: Path) {
             val soundSet = findSoundSetForSound(soundIndex)
                 ?: throw IllegalArgumentException("Target sound is not in a sound set!")
             val wsdIndex = soundIndex - soundSet.soundStartIndex.value
-            val wsdReader = soundSet.file.value.open()
-            val warReader = soundSet.archive.value.file.value.open()
-            wsdReader.use {
-                warReader.use {
-                    val wsd = Cwsd(wsdReader)
-                    val war = Cwar(warReader)
-                    Files.write(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
-                }
+            withCwsdCwarMapping(soundSet.file.value, soundSet.archive.value.file.value) { wsd, war ->
+                Files.write(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
             }
         }
     }
@@ -185,17 +171,11 @@ class Csar(var path: Path) {
     fun extractSoundSet(soundSet: SoundSet, destination: Path) {
         val targetArchive = soundSet.archive.value
         val sounds = findAssociatedSounds(soundSet)
-        val wsdReader = soundSet.file.value.open()
-        val warReader = targetArchive.file.value.open()
-        wsdReader.use {
-            warReader.use {
-                val wsd = Cwsd(wsdReader)
-                val war = Cwar(warReader)
-                assert(wsd.entries.size == sounds.size)
-                for (i in 0 until sounds.size) {
-                    val destinationPath = Paths.get(destination.toString(), "${sounds[i]}.cwav")
-                    Files.write(destinationPath, war.files[wsd.entries[i].archiveIndex])
-                }
+        withCwsdCwarMapping(soundSet.file.value, targetArchive.file.value) { wsd, war ->
+            assert(wsd.entries.size == sounds.size)
+            for (i in 0 until sounds.size) {
+                val destinationPath = Paths.get(destination.toString(), "${sounds[i]}.cwav")
+                Files.write(destinationPath, war.files[wsd.entries[i].archiveIndex])
             }
         }
     }
@@ -240,7 +220,7 @@ class Csar(var path: Path) {
     }
 
     private fun importArchive(source: Csar, archive: Archive, player: Player) {
-        importInternalFile(source, archive.file.value)
+        importInternalFileWithRetrieverUpdate(source, archive.file.value)
         archive.strgEntry.value = strg.allocateEntry(archive.strgEntry.value.name, archive.strgEntry.value.type)
         this.archives.add(archive)
 
@@ -249,14 +229,12 @@ class Csar(var path: Path) {
             importSoundSet(source, set, player, this.archives.lastIndex)
     }
 
-    private fun importInternalFile(source: Csar, record: InternalFileReference) {
-        record.retriever = ImportedFileRetriever(
-            source.path,
-            source.fileAddress + record.fileAddress + 8,
-            record.fileSize.toInt(),
-            byteOrder
-        )
+    private fun importInternalFileWithRetrieverUpdate(source: Csar, record: InternalFileReference) {
+        record.retriever = ImportedFileRetriever(source, record)
+        importInternalFile(record)
+    }
 
+    private fun importInternalFile(record: InternalFileReference) {
         var maxAddress: Long = 0x18
         for (file in files) {
             if (file is InternalFileReference) {
@@ -276,42 +254,71 @@ class Csar(var path: Path) {
         soundSets.add(set)
     }
 
-    private fun importSoundSet(source: Csar, set: SoundSet, player: Player) {
-        val archive = Archive()
-        archive.file.value = InternalFileReference()
-        archive.strgEntry.value = strg.allocateEntry("WARC_$set", 5)
-        archive.unknown.value = 3 // Seems to be right for named archives
-        archive.entryCount.value = set.soundEndIndex.value - set.soundStartIndex.value + 1
-        importSetFileAsExclusive(source, set, archive.file.value, archives.size)
-        importInternalFile(source, archive.file.value)
-        archives.add(archive)
-        set.archive.value = archive
-
+    private fun importSoundSetWithNewArchive(source: Csar, set: SoundSet, player: Player) {
+        val archive = createArchiveForSet(set)
+        importSetFileAsExclusive(set, archives.size)
         importSoundsFromSoundSet(source, set, player)
+        set.archive.value = archive
+        archives.add(archive)
         soundSets.add(set)
     }
 
-    private fun importSetFileAsExclusive(source: Csar, set: SoundSet, newWarRecord: InternalFileReference, archiveId: Int) {
-        importInternalFile(source, set.file.value)
-        val wsdReader = set.file.value.open()
-        val warReader = set.archive.value.file.value.open()
+    private fun createArchiveForSet(set: SoundSet): Archive {
+        val archive = Archive()
+        archive.file.value = createArchiveFileRecordForSet(set)
+        archive.unknown.value = 3 // Seems to be right for named archives
+        archive.strgEntry.value = strg.allocateEntry("WARC_$set", 5)
+        archive.entryCount.value = set.soundEndIndex.value - set.soundStartIndex.value + 1
+        return archive
+    }
+
+    private fun createArchiveFileRecordForSet(set: SoundSet): InternalFileReference {
+        return withCwsdCwarMapping(set.file.value, set.archive.value.file.value) { wsd, war ->
+            // Move files from the old CWAR into the new one
+            val newWar = Cwar()
+            for (entry in wsd.entries)
+                newWar.files.add(war.files[entry.archiveIndex])
+
+            // Create a file record for the new CWAR and add it to the files list.
+            val rawNewWar = newWar.serialize(byteOrder)
+            val record = InternalFileReference()
+            record.fileSize = rawNewWar.size.toLong()
+            record.retriever = InMemoryFileRetriever(rawNewWar, byteOrder)
+            importInternalFile(record)
+            record
+        }
+    }
+
+    private fun <T> withCwsdCwarMapping(
+        wsdRecord: InternalFileReference,
+        warRecord: InternalFileReference,
+        action: (Cwsd, Cwar) -> T
+    ): T {
+        val wsdReader = wsdRecord.open()
+        val warReader = warRecord.open()
         wsdReader.use {
             warReader.use {
                 val wsd = Cwsd(wsdReader)
                 val war = Cwar(warReader)
-                val newWar = Cwar()
-                wsd.transferTo(war, newWar, archiveId)
-                set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
-
-                val rawNewWar = newWar.serialize(byteOrder)
-                newWarRecord.fileSize = rawNewWar.size.toLong()
-                newWarRecord.retriever = InMemoryFileRetriever(rawNewWar, byteOrder)
+                return action(wsd, war)
             }
         }
     }
 
+    private fun importSetFileAsExclusive(set: SoundSet, archiveId: Int) {
+        val wsdReader = set.file.value.open()
+        wsdReader.use {
+            val wsd = Cwsd(wsdReader)
+            wsd.transferTo(archiveId)
+            val rawWsd = wsd.serialize(byteOrder)
+            set.file.value.fileSize = rawWsd.size.toLong()
+            set.file.value.retriever = InMemoryFileRetriever(rawWsd, byteOrder)
+        }
+        importInternalFile(set.file.value)
+    }
+
     private fun importSetFileAsPartial(source: Csar, set: SoundSet, archiveId: Int) {
-        importInternalFile(source, set.file.value)
+        importInternalFileWithRetrieverUpdate(source, set.file.value)
         val wsdReader = set.file.value.open()
         wsdReader.use {
             val wsd = Cwsd(wsdReader)
@@ -338,6 +345,6 @@ class Csar(var path: Path) {
 
     fun importSoundSets(source: Csar, sets: List<SoundSet>, player: Player) {
         for (set in sets)
-            importSoundSet(source, set, player)
+            importSoundSetWithNewArchive(source, set, player)
     }
 }

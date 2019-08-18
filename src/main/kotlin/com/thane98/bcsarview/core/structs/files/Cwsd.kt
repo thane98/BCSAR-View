@@ -33,9 +33,8 @@ class Cwsd(reader: IBinaryReader) {
             entry.archiveId = archiveId
     }
 
-    fun transferTo(source: Cwar, destination: Cwar, archiveId: Int) {
+    fun transferTo(archiveId: Int) {
         for (i in 0 until entries.size) {
-            destination.files.add(source.files[entries[i].archiveIndex])
             entries[i].archiveId = archiveId
             entries[i].archiveIndex = i
         }

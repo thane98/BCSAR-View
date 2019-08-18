@@ -2,6 +2,7 @@ package com.thane98.bcsarview.core.io
 
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 
@@ -23,4 +24,13 @@ fun IBinaryReader.verifyMagic(expected: String) {
             "Invalid magic number. Found $actual expected $expected"
         )
     }
+}
+
+fun FileChannel.determineByteOrder(): ByteOrder {
+    val buffer = ByteBuffer.allocate(2)
+    this.read(buffer)
+    return if (buffer[0].toInt() == 0xFE)
+        ByteOrder.BIG_ENDIAN
+    else
+        ByteOrder.LITTLE_ENDIAN
 }

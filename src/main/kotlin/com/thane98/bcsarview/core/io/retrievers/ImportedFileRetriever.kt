@@ -3,6 +3,8 @@ package com.thane98.bcsarview.core.io.retrievers
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IFileRetriever
 import com.thane98.bcsarview.core.io.BinaryReader
+import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.InternalFileReference
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
@@ -14,6 +16,13 @@ class ImportedFileRetriever(
     private val size: Int,
     private val byteOrder: ByteOrder
 ) : IFileRetriever {
+    constructor(source: Csar, record: InternalFileReference): this(
+        source.path,
+        source.fileAddress + record.fileAddress + 8,
+        record.fileSize.toInt(),
+        source.byteOrder
+    )
+
     override fun retrieve(): ByteArray {
         val reader = FileChannel.open(source)
         reader.use {
