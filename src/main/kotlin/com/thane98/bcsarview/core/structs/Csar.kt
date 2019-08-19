@@ -1,5 +1,6 @@
 package com.thane98.bcsarview.core.structs
 
+import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
@@ -7,13 +8,13 @@ import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.BinaryReader
 import com.thane98.bcsarview.core.io.BinaryWriter
 import com.thane98.bcsarview.core.io.determineByteOrder
-import com.thane98.bcsarview.core.io.retrievers.ImportedFileRetriever
+import com.thane98.bcsarview.core.io.retrievers.BasicFileRetriever
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
-import com.thane98.bcsarview.core.io.retrievers.InternalFileRetriever
 import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
+import com.thane98.bcsarview.core.utils.dumpCwav
 import javafx.collections.ObservableList
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
@@ -22,6 +23,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.util.concurrent.TimeUnit
 
 class Csar(var path: Path) {
     private val strg: Strg
@@ -65,7 +67,7 @@ class Csar(var path: Path) {
         }
     }
 
-    fun reopen(): IBinaryReader {
+    private fun reopen(): IBinaryReader {
         return BinaryReader(FileChannel.open(path), byteOrder)
     }
 
@@ -78,6 +80,7 @@ class Csar(var path: Path) {
         )
         val reader = reopen()
         val writer = BinaryWriter(channel, byteOrder)
+        path = destination
         reader.use {
             writer.use {
                 val strg = strg.serialize(this)
@@ -89,7 +92,6 @@ class Csar(var path: Path) {
                 fixHeader(writer, strg.size, info.size, filePartitionSize)
             }
         }
-        path = destination
     }
 
     private fun writeHeader(reader: IBinaryReader, writer: IBinaryWriter) {
@@ -98,7 +100,7 @@ class Csar(var path: Path) {
         writer.writeShort(0x40)
         reader.seek(writer.tell().toLong())
         writer.write(reader.read(4)) // Version
-        writer.writeInt(0) // BCSAR size. Need to revisit.
+        writer.writeInt(0) // BCSAR fileSize. Need to revisit.
         writer.writeInt(3) // Number of partitions
         writer.writeInt(0x2000)
         writer.writeInt(0) // STRG address. Always 0x40.
@@ -128,22 +130,31 @@ class Csar(var path: Path) {
     }
 
     private fun writeFilePartition(writer: IBinaryWriter): Int {
-        val baseAddress = writer.tell()
+        fileAddress = writer.tell().toLong()
         writer.write("FILE".toByteArray(StandardCharsets.UTF_8))
-        while (writer.tell() != baseAddress + 0x20) writer.writeInt(0) // Fill out the rest of the header...
+        while (writer.tell().toLong() != fileAddress + 0x20) writer.writeInt(0) // Fill out the rest of the header...
+        writeFiles(writer, fileAddress)
+
+        val filePartitionSize = (writer.tell() - fileAddress).toInt()
+        writer.seek((fileAddress + 4).toInt())
+        writer.writeInt(filePartitionSize)
+        return filePartitionSize
+    }
+
+    private fun writeFiles(writer: IBinaryWriter, filePartitionAddress: Long) {
         for (entry in files) {
             if (entry is InternalFileReference) {
                 while (writer.tell() % 0x20 != 0) writer.writeByte(0)
-                assert(baseAddress + entry.fileAddress + 8 == writer.tell().toLong())
+                assert(filePartitionAddress + entry.fileAddress + 8 == writer.tell().toLong())
                 writer.write(entry.retriever.retrieve())
-                entry.retriever = InternalFileRetriever(this, entry)
+                entry.retriever = BasicFileRetriever(
+                    path,
+                    filePartitionAddress + entry.fileAddress + 8,
+                    entry.fileSize(),
+                    byteOrder
+                )
             }
         }
-        fileAddress = baseAddress.toLong()
-        val filePartitionSize = writer.tell() - baseAddress
-        writer.seek(baseAddress + 4)
-        writer.writeInt(filePartitionSize)
-        return filePartitionSize
     }
 
     fun dumpFile(record: InternalFileReference, destination: Path) {
@@ -159,7 +170,7 @@ class Csar(var path: Path) {
                 ?: throw IllegalArgumentException("Target sound is not in a sound set!")
             val wsdIndex = soundIndex - soundSet.soundStartIndex.value
             withCwsdCwarMapping(soundSet.file.value, soundSet.archive.value.file.value) { wsd, war ->
-                Files.write(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
+                dumpCwav(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
             }
         }
     }
@@ -175,7 +186,7 @@ class Csar(var path: Path) {
             assert(wsd.entries.size == sounds.size)
             for (i in 0 until sounds.size) {
                 val destinationPath = Paths.get(destination.toString(), "${sounds[i]}.cwav")
-                Files.write(destinationPath, war.files[wsd.entries[i].archiveIndex])
+                dumpCwav(destinationPath, war.files[wsd.entries[i].archiveIndex])
             }
         }
     }
@@ -220,36 +231,17 @@ class Csar(var path: Path) {
     }
 
     private fun importArchive(source: Csar, archive: Archive, player: Player) {
-        importInternalFileWithRetrieverUpdate(source, archive.file.value)
         archive.strgEntry.value = strg.allocateEntry(archive.strgEntry.value.name, archive.strgEntry.value.type)
         this.archives.add(archive)
+        files.add(archive.file.value)
 
         val sets = source.findAssociatedSets(archive)
         for (set in sets)
             importSoundSet(source, set, player, this.archives.lastIndex)
     }
 
-    private fun importInternalFileWithRetrieverUpdate(source: Csar, record: InternalFileReference) {
-        record.retriever = ImportedFileRetriever(source, record)
-        importInternalFile(record)
-    }
-
-    private fun importInternalFile(record: InternalFileReference) {
-        var maxAddress: Long = 0x18
-        for (file in files) {
-            if (file is InternalFileReference) {
-                val fileEnd = file.fileAddress + file.fileSize
-                val endAddress = fileEnd + (0x20 - (fileEnd % 0x20))
-                if (endAddress > maxAddress)
-                    maxAddress = endAddress
-            }
-        }
-        record.fileAddress = maxAddress - 8
-        files.add(record)
-    }
-
     private fun importSoundSet(source: Csar, set: SoundSet, player: Player, archiveId: Int) {
-        importSetFileAsPartial(source, set, archiveId)
+        importSetFileAsPartial(set, archiveId)
         importSoundsFromSoundSet(source, set, player)
         soundSets.add(set)
     }
@@ -282,9 +274,8 @@ class Csar(var path: Path) {
             // Create a file record for the new CWAR and add it to the files list.
             val rawNewWar = newWar.serialize(byteOrder)
             val record = InternalFileReference()
-            record.fileSize = rawNewWar.size.toLong()
             record.retriever = InMemoryFileRetriever(rawNewWar, byteOrder)
-            importInternalFile(record)
+            files.add(record)
             record
         }
     }
@@ -311,20 +302,19 @@ class Csar(var path: Path) {
             val wsd = Cwsd(wsdReader)
             wsd.transferTo(archiveId)
             val rawWsd = wsd.serialize(byteOrder)
-            set.file.value.fileSize = rawWsd.size.toLong()
             set.file.value.retriever = InMemoryFileRetriever(rawWsd, byteOrder)
         }
-        importInternalFile(set.file.value)
+        files.add(set.file.value)
     }
 
-    private fun importSetFileAsPartial(source: Csar, set: SoundSet, archiveId: Int) {
-        importInternalFileWithRetrieverUpdate(source, set.file.value)
+    private fun importSetFileAsPartial(set: SoundSet, archiveId: Int) {
         val wsdReader = set.file.value.open()
         wsdReader.use {
             val wsd = Cwsd(wsdReader)
             wsd.moveToArchive(archiveId)
             set.file.value.retriever = InMemoryFileRetriever(wsd.serialize(byteOrder), byteOrder)
         }
+        files.add(set.file.value)
     }
 
     private fun importSoundsFromSoundSet(source: Csar, set: SoundSet, player: Player) {

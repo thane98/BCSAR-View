@@ -6,6 +6,8 @@ import com.thane98.bcsarview.core.io.ByteArrayBinaryReader
 import java.nio.ByteOrder
 
 class InMemoryFileRetriever(private val rawFile: ByteArray, private val byteOrder: ByteOrder) : IFileRetriever {
+    override fun fileSize(): Int { return rawFile.size }
+
     override fun retrieve(): ByteArray {
         return rawFile
     }

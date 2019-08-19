@@ -20,6 +20,7 @@ jar {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.7'
     compile group: 'org.controlsfx', name: 'controlsfx', version: '8.40.15'
     compile "org.jetbrains.kotlin:kotlin-reflect:1.3.31"
     compile 'org.jfxtras:jmetro:5.5'

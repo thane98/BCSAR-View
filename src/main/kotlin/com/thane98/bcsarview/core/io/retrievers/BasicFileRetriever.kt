@@ -10,18 +10,13 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 
-class ImportedFileRetriever(
+class BasicFileRetriever(
     private val source: Path,
     private val address: Long,
     private val size: Int,
     private val byteOrder: ByteOrder
 ) : IFileRetriever {
-    constructor(source: Csar, record: InternalFileReference): this(
-        source.path,
-        source.fileAddress + record.fileAddress + 8,
-        record.fileSize.toInt(),
-        source.byteOrder
-    )
+    override fun fileSize(): Int { return size }
 
     override fun retrieve(): ByteArray {
         val reader = FileChannel.open(source)

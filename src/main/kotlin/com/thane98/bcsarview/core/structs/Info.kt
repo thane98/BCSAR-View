@@ -56,7 +56,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         footer = reader.read(0x1C).array()
     }
 
-    // To figure out the size of a config, we look at where the next config (or the next table) starts.
+    // To figure out the fileSize of a config, we look at where the next config (or the next table) starts.
     // This avoids needing to figure out the layout of every possible config right now.
     // We can worry about that later.
     private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, strg: Strg, endAddress: Long): ObservableList<AudioConfig> {
@@ -171,10 +171,12 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         val sets = mutableListOf<IEntry>()
         sets.addAll(soundSets)
         sets.addAll(sequenceSets)
+        updateFileTableAddresses()
+
         val result = mutableListOf<Byte>()
         val writer = ByteListWriter(result, csar.byteOrder)
         writer.write("INFO".toByteArray(StandardCharsets.UTF_8))
-        writer.writeInt(0) // Partition size. Need to revisit later.
+        writer.writeInt(0) // Partition fileSize. Need to revisit later.
         reserveSpaceForHeaderEntry(writer, 0x2100)
         reserveSpaceForHeaderEntry(writer, 0x2104)
         reserveSpaceForHeaderEntry(writer, 0x2101)
@@ -220,6 +222,19 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         writer.seek(4)
         writer.writeInt(result.size)
         return result.toByteArray()
+    }
+
+    private fun updateFileTableAddresses() {
+        var nextAddress = 0x20
+        for (file in files) {
+            if (file is InternalFileReference) {
+                file.fileAddress = nextAddress.toLong() - 8
+                val padding = 0x20 - (file.fileSize() % 0x20)
+                println("nextAddress: ${nextAddress.toString(16)}, fileSize: ${file.fileSize().toString(16)}, padding: ${padding.toString(16)}")
+                nextAddress += file.fileSize()
+                nextAddress += (0x20 - (nextAddress % 0x20)) % 0x20
+            }
+        }
     }
 
     private fun reserveSpaceForHeaderEntry(writer: IBinaryWriter, resourceType: Int) {

@@ -41,17 +41,17 @@ class Cwar() {
         writer.writeShort(0xFEFF)
         writer.writeShort(0x40)
         writer.writeInt(0x1000000)
-        writer.writeInt(0) // File size. Need to revisit.
+        writer.writeInt(0) // File fileSize. Need to revisit.
         writer.writeInt(0x2)
         writer.writeInt(0x6800)
         writer.writeInt(0x40)
-        writer.writeInt(0) // INFO size. Need to revisit.
+        writer.writeInt(0) // INFO fileSize. Need to revisit.
         writer.writeInt(0x6801)
         writer.writeInt(0) // FILE address. Need to revisit.
-        writer.writeInt(0) // FILE size. Need to revisit.
+        writer.writeInt(0) // FILE fileSize. Need to revisit.
         while(result.size != 0x40) writer.writeInt(0)
         writer.write("INFO".toByteArray(StandardCharsets.UTF_8))
-        writer.writeInt(0) // INFO size. Need to revisit.
+        writer.writeInt(0) // INFO fileSize. Need to revisit.
         writer.writeInt(files.size)
         for (i in 0 until files.size) {
             val file = files[i]
