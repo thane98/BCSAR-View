@@ -1,5 +1,6 @@
 package com.thane98.bcsarview.core.structs
 
+import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
@@ -54,6 +55,14 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         sequenceSets = sets.sequenceSets
         reader.seek(footerAddress)
         footer = reader.read(0x1C).array()
+    }
+
+    private fun generateConfigTable(): List<AudioConfig> {
+        val newConfigs = mutableListOf<AudioConfig>()
+        newConfigs.addAll(configs.filtered { it.configType == ConfigType.EXTERNAL_SOUND })
+        newConfigs.addAll(soundSets.flatMap { it.sounds })
+        newConfigs.addAll(configs.filtered { it.configType == ConfigType.SEQUENCE})
+        return newConfigs
     }
 
     // To figure out the fileSize of a config, we look at where the next config (or the next table) starts.
@@ -168,6 +177,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
     }
 
     fun serialize(csar: Csar): ByteArray {
+        val configs = generateConfigTable()
         val sets = mutableListOf<IEntry>()
         sets.addAll(soundSets)
         sets.addAll(sequenceSets)
@@ -229,7 +239,6 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         for (file in files) {
             if (file is InternalFileReference) {
                 file.fileAddress = nextAddress.toLong() - 8
-                val padding = 0x20 - (file.fileSize() % 0x20)
                 nextAddress += file.fileSize()
                 nextAddress += (0x20 - (nextAddress % 0x20)) % 0x20
             }
