@@ -6,11 +6,9 @@ import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.ui.forms.*
 import com.thane98.bcsarview.ui.utils.applyStyles
 import com.thane98.bcsarview.ui.utils.createBcsarOpenDialog
-import com.thane98.bcsarview.ui.utils.createErrorDialog
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
-import javafx.concurrent.Task
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
@@ -18,17 +16,19 @@ import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import javafx.stage.FileChooser
 import javafx.stage.Stage
-import java.lang.Exception
 import java.net.URL
-import java.nio.file.CopyOption
 import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 import kotlin.concurrent.thread
 
 class MainWindowController: Initializable {
+    @FXML
+    private lateinit var waitingEffect: Region
+    @FXML
+    private lateinit var waitingIndicator: ProgressIndicator
     @FXML
     private lateinit var editMenu: Menu
     @FXML
@@ -70,6 +70,7 @@ class MainWindowController: Initializable {
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         Configuration.theme.addListener { _ -> applyStyles(tabs.scene) }
         HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
+        waitingEffect.visibleProperty().bind(waitingIndicator.visibleProperty())
         editMenu.disableProperty().bind(Bindings.isNull(csar))
         saveMenuItem.disableProperty().bind(Bindings.isNull(csar))
         saveButton.disableProperty().bind(Bindings.isNull(csar))
@@ -108,18 +109,20 @@ class MainWindowController: Initializable {
         val dialog = createBcsarOpenDialog()
         val selection = dialog.showOpenDialog(tabs.scene.window)
         if (selection != null) {
-            val task = object: Task<Unit>() {
-                override fun call() {
-                    val opened = Csar(selection.toPath())
-                    Platform.runLater { csar.value = opened }
+            waitingIndicator.isVisible = true
+            thread {
+                val opened = Csar(selection.toPath())
+                Platform.runLater {
+                    csar.value = opened
+                    waitingIndicator.isVisible = false
                 }
             }
-            Thread(task).run()
         }
     }
 
     @FXML
     private fun saveFile() {
+        waitingIndicator.isVisible = true
         thread {
             val oldPath = csar.value.path
             val tempPath = oldPath.resolveSibling("BCSARVIEW_TEMP_${oldPath.fileName}")
@@ -127,7 +130,8 @@ class MainWindowController: Initializable {
             csar.value.path = tempPath
             csar.value.save(oldPath)
             Files.delete(tempPath)
-        }.run()
+            Platform.runLater { waitingIndicator.isVisible = false }
+        }
     }
 
     @FXML
@@ -140,8 +144,13 @@ class MainWindowController: Initializable {
         )
 
         val selection = dialog.showSaveDialog(tabs.scene.window)
-        if (selection != null)
-            thread { csar.value.save(selection.toPath()) }.run()
+        if (selection != null) {
+            waitingIndicator.isVisible = true
+            thread {
+                csar.value.save(selection.toPath())
+                Platform.runLater { waitingIndicator.isVisible = false }
+            }
+        }
     }
 
     @FXML

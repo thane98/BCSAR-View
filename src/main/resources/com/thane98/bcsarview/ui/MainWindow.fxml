@@ -13,80 +13,89 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.Pane?>
 <?import org.controlsfx.glyphfont.Glyph?>
-<VBox prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
-    <MenuBar VBox.vgrow="NEVER">
-        <Menu mnemonicParsing="false" text="File">
-            <MenuItem mnemonicParsing="false" text="Open…" onAction="#openFile"/>
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save" onAction="#saveFile" />
-            <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" text="Save As" onAction="#saveFileAs" />
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close" onAction="#close" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences" onAction="#openPreferences" />
-            <SeparatorMenuItem mnemonicParsing="false"/>
-            <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit" />
-        </Menu>
-        <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
-            <Menu mnemonicParsing="false" text="Import">
-                <MenuItem mnemonicParsing="false" text="Archive" onAction="#importArchive" />
-                <MenuItem mnemonicParsing="false" text="Sound Set" onAction="#importSoundSet" />
-                <MenuItem mnemonicParsing="false" text="External Sound" onAction="#importExternalSound" />
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.effect.BoxBlur?>
+<StackPane prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
+    <VBox>
+        <MenuBar VBox.vgrow="NEVER">
+            <Menu mnemonicParsing="false" text="File">
+                <MenuItem mnemonicParsing="false" text="Open…" onAction="#openFile"/>
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save" onAction="#saveFile" />
+                <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" text="Save As" onAction="#saveFileAs" />
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close" onAction="#close" />
+                <SeparatorMenuItem mnemonicParsing="false" />
+                <MenuItem mnemonicParsing="false" text="Preferences" onAction="#openPreferences" />
+                <SeparatorMenuItem mnemonicParsing="false"/>
+                <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit" />
             </Menu>
-            <MenuItem mnemonicParsing="false" text="Add External Sound" onAction="#addExternalSound" />
-            <MenuItem mnemonicParsing="false" text="Mass Rename" onAction="#openMassRename" />
-        </Menu>
-    </MenuBar>
-    <ToolBar>
-        <Button text="Open" onAction="#openFile">
-            <graphic>
-                <Glyph fontFamily="FontAwesome" icon="FOLDER_OPEN" />
-            </graphic>
-        </Button>
-        <Button fx:id="saveButton" text="Save" onAction="#saveFile">
-            <graphic>
-                <Glyph fontFamily="FontAwesome" icon="SAVE"/>
-            </graphic>
-        </Button>
-        <Button fx:id="saveAsButton" text="Save As" onAction="#saveFileAs">
-            <graphic>
-                <Glyph fontFamily="FontAwesome" icon="SAVE" />
-            </graphic>
-        </Button>
-        <Button fx:id="closeButton" text="Close" onAction="#close">
-            <graphic>
-                <Glyph fontFamily="FontAwesome" icon="CLOSE" />
-            </graphic>
-        </Button>
-        <Pane fx:id="toolBarSpacer" />
-        <TextField fx:id="searchField" promptText="Search..." prefWidth="300" onAction="#applyFilter" />
-        <Button onAction="#applyFilter">
-            <graphic>
-                <Glyph fontFamily="FontAwesome" icon="SEARCH" />
-            </graphic>
-        </Button>
-    </ToolBar>
-    <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <Tab text="Sounds">
-            <fx:include fx:id="configs" source="Config.fxml" />
-        </Tab>
-        <Tab text="Sound Sets">
-            <fx:include fx:id="soundSets" source="SoundSet.fxml" />
-        </Tab>
-        <Tab text="Sequence Sets">
-            <fx:include fx:id="sequenceSets" source="SequenceSet.fxml" />
-        </Tab>
-        <Tab text="Banks">
-            <fx:include fx:id="banks" source="Bank.fxml" />
-        </Tab>
-        <Tab text="Archives">
-            <fx:include fx:id="archives" source="Archives.fxml" />
-        </Tab>
-        <Tab text="Groups">
-            <fx:include fx:id="groups" source="Group.fxml" />
-        </Tab>
-        <Tab text="Players">
-            <fx:include fx:id="players" source="Player.fxml" />
-        </Tab>
-    </TabPane>
-</VBox>
+            <Menu fx:id="editMenu" mnemonicParsing="false" text="Edit">
+                <Menu mnemonicParsing="false" text="Import">
+                    <MenuItem mnemonicParsing="false" text="Archive" onAction="#importArchive" />
+                    <MenuItem mnemonicParsing="false" text="Sound Set" onAction="#importSoundSet" />
+                    <MenuItem mnemonicParsing="false" text="External Sound" onAction="#importExternalSound" />
+                </Menu>
+                <MenuItem mnemonicParsing="false" text="Add External Sound" onAction="#addExternalSound" />
+                <MenuItem mnemonicParsing="false" text="Mass Rename" onAction="#openMassRename" />
+            </Menu>
+        </MenuBar>
+        <ToolBar>
+            <Button text="Open" onAction="#openFile">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="FOLDER_OPEN" />
+                </graphic>
+            </Button>
+            <Button fx:id="saveButton" text="Save" onAction="#saveFile">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="SAVE"/>
+                </graphic>
+            </Button>
+            <Button fx:id="saveAsButton" text="Save As" onAction="#saveFileAs">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="SAVE" />
+                </graphic>
+            </Button>
+            <Button fx:id="closeButton" text="Close" onAction="#close">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="CLOSE" />
+                </graphic>
+            </Button>
+            <Pane fx:id="toolBarSpacer" />
+            <TextField fx:id="searchField" promptText="Search..." prefWidth="300" onAction="#applyFilter" />
+            <Button onAction="#applyFilter">
+                <graphic>
+                    <Glyph fontFamily="FontAwesome" icon="SEARCH" />
+                </graphic>
+            </Button>
+        </ToolBar>
+        <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+            <Tab text="Sounds">
+                <fx:include fx:id="configs" source="Config.fxml" />
+            </Tab>
+            <Tab text="Sound Sets">
+                <fx:include fx:id="soundSets" source="SoundSet.fxml" />
+            </Tab>
+            <Tab text="Sequence Sets">
+                <fx:include fx:id="sequenceSets" source="SequenceSet.fxml" />
+            </Tab>
+            <Tab text="Banks">
+                <fx:include fx:id="banks" source="Bank.fxml" />
+            </Tab>
+            <Tab text="Archives">
+                <fx:include fx:id="archives" source="Archives.fxml" />
+            </Tab>
+            <Tab text="Groups">
+                <fx:include fx:id="groups" source="Group.fxml" />
+            </Tab>
+            <Tab text="Players">
+                <fx:include fx:id="players" source="Player.fxml" />
+            </Tab>
+        </TabPane>
+    </VBox>
+    <Region fx:id="waitingEffect" visible="false" style="-fx-background-color: #00000060;"/>
+    <ProgressIndicator maxWidth="300" maxHeight="300" fx:id="waitingIndicator" visible="false"/>
+</StackPane>
