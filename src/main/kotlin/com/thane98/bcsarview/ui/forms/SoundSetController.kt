@@ -1,16 +1,12 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
-import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.SoundSet
-import com.thane98.bcsarview.ui.utils.ByteArrayTableCell
-import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import com.thane98.bcsarview.ui.utils.applyStyles
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
-import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.stage.DirectoryChooser
@@ -21,7 +17,7 @@ import java.util.*
 
 class SoundSetController : AbstractEntryController<SoundSet>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<SoundSet, StrgEntry>
+    private lateinit var nameColumn: TableColumn<SoundSet, String>
     @FXML
     private lateinit var unknownThreeColumn: TableColumn<SoundSet, Number>
     @FXML
@@ -31,8 +27,8 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<SoundSet>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
         unknownThreeColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         archiveColumn.setCellValueFactory { SimpleStringProperty(it.value.archive.value?.toString()) }

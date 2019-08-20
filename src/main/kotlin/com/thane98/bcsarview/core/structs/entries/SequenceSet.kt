@@ -17,11 +17,11 @@ class SequenceSet(): BaseSet() {
     val unknownTwo = SimpleObjectProperty<ByteArray>()
     val unknownThree: ObservableList<Int> = FXCollections.observableArrayList<Int>()
 
-    constructor(reader: IBinaryReader, baseAddress: Long, strg: Strg): this() {
-        readBaseSetProperties(reader, baseAddress)
+    constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {
+        readBaseSetProperties(reader, baseAddress, info)
         reader.seek(baseAddress + 0x14) // Skip base properties and type identifier
         unknownTwo.value = reader.read(0x8).array()
-        strgEntry.value = strg.entries[reader.readInt()]
+        name.value = strg.entries[reader.readInt()].name
         val numUnknownTwoEntries = reader.readInt()
         for (i in 0 until numUnknownTwoEntries)
             unknownThree.add(reader.readInt())
@@ -31,7 +31,7 @@ class SequenceSet(): BaseSet() {
         super.serializeTo(csar, writer)
         writer.writeInt(0) // Type identifier
         writer.write(unknownTwo.value)
-        writer.writeInt(strgEntry.value.index)
+        writer.writeInt(strgEntry!!.index)
         writer.writeInt(unknownThree.size)
         for (entry in unknownThree)
             writer.writeInt(entry)

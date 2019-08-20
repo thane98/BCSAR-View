@@ -21,7 +21,7 @@ abstract class AbstractEntryController<T : AbstractNamedEntry> : Initializable {
 
     fun refresh() { table.refresh() }
 
-    fun retrieveStrgEntries(): List<StrgEntry> { return table.items.map { it.strgEntry.value } }
+    fun retrieveEntries(): List<AbstractNamedEntry> { return table.items }
 
     abstract fun onFileChange(csar: Csar?)
 }

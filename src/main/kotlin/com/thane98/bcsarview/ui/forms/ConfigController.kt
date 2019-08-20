@@ -27,7 +27,7 @@ import java.util.*
 
 class ConfigController : AbstractEntryController<AudioConfig>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<AudioConfig, StrgEntry>
+    private lateinit var nameColumn: TableColumn<AudioConfig, String>
     @FXML
     private lateinit var playerColumn: TableColumn<AudioConfig, Player>
     @FXML
@@ -39,8 +39,8 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<AudioConfig>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         playerColumn.setCellValueFactory { it.value.player }
         playerColumn.setCellFactory { ComboBoxTableCell<AudioConfig, Player>(csar.value.players) }
         unknownColumn.setCellValueFactory { it.value.unknown }

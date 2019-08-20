@@ -1,11 +1,11 @@
 package com.thane98.bcsarview.ui.forms
 
-import com.thane98.bcsarview.core.structs.StrgEntry
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import javafx.fxml.FXML
 import javafx.scene.control.TextField
 import javafx.stage.Stage
 
-class MassRenameController(private val entries: List<StrgEntry>) {
+class MassRenameController(private val entries: List<AbstractNamedEntry>) {
     @FXML
     private lateinit var stage: Stage
     @FXML
@@ -15,7 +15,7 @@ class MassRenameController(private val entries: List<StrgEntry>) {
 
     fun commit() {
         for (entry in entries)
-            entry.name = entry.name.replace(fromField.text, toField.text)
+            entry.name.value = entry.name.value.replace(fromField.text, toField.text)
         stage.close()
     }
 

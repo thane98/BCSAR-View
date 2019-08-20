@@ -91,7 +91,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
             reader.seek(entryAddress + 0x10)
             when (reader.readInt()) {
                 0x2205 -> soundSets.add(SoundSet(reader, entryAddress, this, strg))
-                0 -> sequenceSets.add(SequenceSet(reader, entryAddress, strg))
+                0 -> sequenceSets.add(SequenceSet(reader, entryAddress, this, strg))
                 else -> throw IllegalArgumentException("Unrecognized set type!")
             }
         }
@@ -230,7 +230,6 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
             if (file is InternalFileReference) {
                 file.fileAddress = nextAddress.toLong() - 8
                 val padding = 0x20 - (file.fileSize() % 0x20)
-                println("nextAddress: ${nextAddress.toString(16)}, fileSize: ${file.fileSize().toString(16)}, padding: ${padding.toString(16)}")
                 nextAddress += file.fileSize()
                 nextAddress += (0x20 - (nextAddress % 0x20)) % 0x20
             }

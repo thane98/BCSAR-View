@@ -107,8 +107,15 @@ class MainWindowController: Initializable {
     private fun openFile() {
         val dialog = createBcsarOpenDialog()
         val selection = dialog.showOpenDialog(tabs.scene.window)
-        if (selection != null)
-            thread { csar.value = Csar(selection.toPath()) }.run()
+        if (selection != null) {
+            val task = object: Task<Unit>() {
+                override fun call() {
+                    val opened = Csar(selection.toPath())
+                    Platform.runLater { csar.value = opened }
+                }
+            }
+            Thread(task).run()
+        }
     }
 
     @FXML
@@ -194,7 +201,7 @@ class MainWindowController: Initializable {
     private fun openMassRename() {
         val currentController = controllers[tabs.selectionModel.selectedIndex]
         val loader = FXMLLoader()
-        loader.setController(MassRenameController(currentController.retrieveStrgEntries()))
+        loader.setController(MassRenameController(currentController.retrieveEntries()))
         val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("MassRename.fxml"))
         applyStyles(stage.scene)
         stage.showAndWait()

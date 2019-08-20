@@ -18,7 +18,7 @@ import java.util.*
 
 class ArchiveController : AbstractEntryController<Archive>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<Archive, StrgEntry>
+    private lateinit var nameColumn: TableColumn<Archive, String>
     @FXML
     private lateinit var unknownColumn: TableColumn<Archive, Number>
     @FXML
@@ -28,8 +28,8 @@ class ArchiveController : AbstractEntryController<Archive>() {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<Archive>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         entryCountColumn.setCellValueFactory { it.value.entryCount }

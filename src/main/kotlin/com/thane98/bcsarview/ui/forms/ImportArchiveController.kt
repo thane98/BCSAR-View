@@ -23,7 +23,7 @@ class ImportArchiveController(destinationCsar: Csar) : AbstractImportController(
     }
 
     override fun onOpenCsar() {
-        selectionView.items = sourceCsar?.archives?.filtered { it.strgEntry.value != null }
+        selectionView.items = sourceCsar?.archives?.filtered { it.name.value != null }
     }
 
     override fun doImport() {

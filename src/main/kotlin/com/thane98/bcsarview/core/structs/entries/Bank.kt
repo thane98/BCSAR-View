@@ -21,7 +21,7 @@ class Bank(): AbstractNamedEntry() {
         reader.seek(baseAddress)
         file.value = info.files[reader.readInt()] as InternalFileReference
         unknown.value = reader.read(0xC).array()
-        strgEntry.value = strg.entries[reader.readInt()]
+        name.value = strg.entries[reader.readInt()].name
         if (reader.readInt() != 0)
             archive.value = info.archives[reader.readInt24()]
     }
@@ -29,7 +29,7 @@ class Bank(): AbstractNamedEntry() {
     override fun serializeTo(csar: Csar, writer: IBinaryWriter) {
         writer.writeInt(csar.files.indexOf(file.value))
         writer.write(unknown.value)
-        writer.writeInt(strgEntry.value.index)
+        writer.writeInt(strgEntry!!.index)
         writer.writeBoolean(archive.value != null)
         if (archive.value != null) {
             writer.writeInt24(csar.archives.indexOf(archive.value))
@@ -38,11 +38,4 @@ class Bank(): AbstractNamedEntry() {
     }
 
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitBank(this) }
-
-    override fun toString(): String {
-        return if (strgEntry.value != null)
-            strgEntry.value.name
-        else
-            "AnonymousBank"
-    }
 }

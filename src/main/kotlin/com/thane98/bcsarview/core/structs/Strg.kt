@@ -1,8 +1,11 @@
 package com.thane98.bcsarview.core.structs
 
+import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.io.ByteListWriter
 import com.thane98.bcsarview.core.io.verifyMagic
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
+import com.thane98.bcsarview.core.structs.entries.AudioConfig
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -12,10 +15,36 @@ data class StrgEntry(var name: String, var resourceId: Int, var type: Int, var i
     }
 }
 
-class Strg(reader: IBinaryReader, baseAddress: Long) {
+class Strg {
     val entries: MutableList<StrgEntry>
 
-    init {
+    constructor(csar: Csar) {
+        entries = mutableListOf()
+        val externalSounds = csar.configs.filtered { it.configType == ConfigType.EXTERNAL_SOUND }
+        allocateStrgEntries(externalSounds, 1)
+        val configsInSets = csar.soundSets.flatMap { it.sounds }
+        allocateStrgEntries(configsInSets, 1, entries.size)
+        val sequenceConfigs = csar.configs.filtered { it.configType == ConfigType.SEQUENCE }
+        allocateStrgEntries(sequenceConfigs, 1, entries.size)
+        allocateStrgEntries(csar.soundSets, 2)
+        allocateStrgEntries(csar.sequenceSets, 2, csar.soundSets.size)
+        allocateStrgEntries(csar.banks, 3)
+        allocateStrgEntries(csar.archives, 5)
+        allocateStrgEntries(csar.groups, 6)
+        allocateStrgEntries(csar.players, 4)
+    }
+
+    private fun allocateStrgEntries(targets: List<AbstractNamedEntry>, type: Int, startId: Int = 0) {
+        for (i in 0 until targets.size) {
+            if (targets[i].name.value != null) {
+                val entry = StrgEntry(targets[i].name.value, startId + i, type, entries.size)
+                targets[i].strgEntry = entry
+                entries.add(entry)
+            }
+        }
+    }
+
+    constructor(reader: IBinaryReader, baseAddress: Long) {
         reader.seek(baseAddress)
         reader.verifyMagic("STRG")
         reader.seek(baseAddress + 0xC)
@@ -24,17 +53,6 @@ class Strg(reader: IBinaryReader, baseAddress: Long) {
         val lookupTableAddress = baseAddress + reader.readInt() + 8
         val names = readNamesTable(reader, nameTableAddress)
         entries = readLookupTable(reader, lookupTableAddress, names)
-    }
-
-    fun allocateEntry(name: String, resourceType: Int): StrgEntry {
-        var max = 0
-        for (entry in entries) {
-            if (entry.type == resourceType && entry.resourceId > max)
-                max = entry.resourceId
-        }
-        val entry = StrgEntry(name, max + 1, resourceType, entries.size)
-        entries.add(entry)
-        return entry
     }
 
     private fun readNamesTable(reader: IBinaryReader, baseAddress: Long): List<String> {

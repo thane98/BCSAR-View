@@ -28,7 +28,6 @@ class ImportSoundSetController(destinationCsar: Csar): AbstractImportController(
 
     override fun doImport() {
         destinationCsar.importSoundSets(
-            sourceCsar!!,
             selectionView.selectionModel.selectedItems,
             playerBox.selectionModel.selectedItem
         )

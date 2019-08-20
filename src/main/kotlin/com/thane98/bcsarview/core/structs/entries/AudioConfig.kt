@@ -29,7 +29,7 @@ class AudioConfig() : AbstractNamedEntry() {
         unknown.value = reader.readInt()
         configType = ConfigType.fromValue(reader.readInt())
         unknownTwo.value = reader.read(8).array()
-        strgEntry.value = strg.entries[reader.readInt()]
+        name.value = strg.entries[reader.readInt()].name
         unknownThree.value = reader.read((endAddress - reader.tell()).toInt()).array()
         validate()
     }
@@ -50,16 +50,9 @@ class AudioConfig() : AbstractNamedEntry() {
         writer.writeInt(unknown.value)
         writer.writeInt(configType.value)
         writer.write(unknownTwo.value)
-        writer.writeInt(strgEntry.value.index)
+        writer.writeInt(strgEntry!!.index)
         writer.write(unknownThree.value)
     }
 
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitBaseConfig(this) }
-
-    override fun toString(): String {
-        return if (strgEntry.value != null)
-            strgEntry.value.name
-        else
-            "AnonymousConfig"
-    }
 }

@@ -59,6 +59,7 @@ private fun convertWavToCwav(source: Path): ByteArray {
     try {
         val command = createConversionCommand(commandTemplate, tempFilePath, source)
         executeConversionCommand(command)
+        return Files.readAllBytes(tempFilePath)
     } finally {
         Files.delete(tempFilePath)
     }

@@ -11,18 +11,19 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
+import javafx.scene.control.cell.TextFieldTableCell
 import java.net.URL
 import java.util.*
 
 class SequenceSetController: AbstractEntryController<SequenceSet>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<SequenceSet, StrgEntry>
+    private lateinit var nameColumn: TableColumn<SequenceSet, String>
     @FXML
     private lateinit var unknownThreeColumn: TableColumn<SequenceSet, String>
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<SequenceSet>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         unknownThreeColumn.setCellValueFactory { SimpleStringProperty(it.value.unknownThree.toString()) }
     }
 

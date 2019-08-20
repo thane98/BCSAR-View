@@ -3,7 +3,6 @@ package com.thane98.bcsarview.core.structs.entries
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntryVisitor
-import com.thane98.bcsarview.core.interfaces.IFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.Info
 import com.thane98.bcsarview.core.structs.Strg
@@ -18,10 +17,10 @@ class SoundSet(): BaseSet() {
     val archive = SimpleObjectProperty<Archive>()
 
     constructor(reader: IBinaryReader, baseAddress: Long, info: Info, strg: Strg): this() {
-        readBaseSetProperties(reader, baseAddress)
+        readBaseSetProperties(reader, baseAddress, info)
         reader.seek(baseAddress + 0x14) // Skip base properties and type identifier
         unknownTwo.value = reader.read(8).array()
-        strgEntry.value = strg.entries[reader.readInt()]
+        name.value = strg.entries[reader.readInt()].name
         unknownThree.value = reader.readInt()
         file.value = info.files[reader.readInt()] as InternalFileReference
         unknownFour.value = reader.read(0xC).array()
@@ -33,7 +32,7 @@ class SoundSet(): BaseSet() {
         super.serializeTo(csar, writer)
         writer.writeInt(0x2205)
         writer.write(unknownTwo.value)
-        writer.writeInt(strgEntry.value.index)
+        writer.writeInt(strgEntry!!.index)
         writer.writeInt(unknownThree.value)
         writer.writeInt(csar.files.indexOf(file.value))
         writer.write(unknownFour.value)

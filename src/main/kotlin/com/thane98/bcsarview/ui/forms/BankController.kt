@@ -19,7 +19,7 @@ import java.util.*
 
 class BankController : AbstractEntryController<Bank>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<Bank, StrgEntry>
+    private lateinit var nameColumn: TableColumn<Bank, String>
     @FXML
     private lateinit var unknownColumn: TableColumn<Bank, ByteArray>
     @FXML
@@ -29,8 +29,8 @@ class BankController : AbstractEntryController<Bank>() {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<Bank>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.setCellFactory { ByteArrayTableCell<Bank>() }
         archiveColumn.setCellValueFactory { SimpleStringProperty(it.value.archive.value?.toString()) }

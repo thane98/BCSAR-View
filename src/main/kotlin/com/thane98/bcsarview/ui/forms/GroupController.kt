@@ -18,7 +18,7 @@ import java.util.*
 
 class GroupController : AbstractEntryController<SoundGroup>() {
     @FXML
-    private lateinit var nameColumn: TableColumn<SoundGroup, StrgEntry>
+    private lateinit var nameColumn: TableColumn<SoundGroup, String>
     @FXML
     private lateinit var unknownColumn: TableColumn<SoundGroup, Number>
 
@@ -26,8 +26,8 @@ class GroupController : AbstractEntryController<SoundGroup>() {
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
-        nameColumn.setCellValueFactory { it.value.strgEntry }
-        nameColumn.setCellFactory { StrgEntryTableCell<SoundGroup>() }
+        nameColumn.setCellValueFactory { it.value.name }
+        nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         unknownColumn.setCellValueFactory { it.value.unknown }
         unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
     }
