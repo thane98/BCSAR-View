@@ -124,13 +124,11 @@ class MainWindowController: Initializable {
     private fun saveFile() {
         waitingIndicator.isVisible = true
         thread {
-            val oldPath = csar.value.path
-            val tempPath = oldPath.resolveSibling("BCSARVIEW_TEMP_${oldPath.fileName}")
-            Files.move(oldPath, tempPath)
-            csar.value.path = tempPath
-            csar.value.save(oldPath)
-            Files.delete(tempPath)
-            Platform.runLater { waitingIndicator.isVisible = false }
+            try {
+                csar.value.save(csar.value.path)
+            } finally {
+                Platform.runLater { waitingIndicator.isVisible = false }
+            }
         }
     }
 

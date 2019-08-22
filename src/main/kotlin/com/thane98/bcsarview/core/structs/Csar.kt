@@ -18,10 +18,7 @@ import javafx.collections.ObservableList
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
+import java.nio.file.*
 import java.util.concurrent.TimeUnit
 
 class Csar(var path: Path) {
@@ -70,15 +67,15 @@ class Csar(var path: Path) {
     }
 
     fun save(destination: Path) {
+        val tempDestination = if (destination != path) destination else destination.resolveSibling("___BCSARVIEW_TEMP.bcsar")
         val channel = FileChannel.open(
-            destination,
+            tempDestination,
             StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING,
             StandardOpenOption.WRITE
         )
         val reader = reopen()
         val writer = BinaryWriter(channel, byteOrder)
-        path = destination
         reader.use {
             writer.use {
                 val strg = Strg(this).serialize(this)
@@ -86,10 +83,12 @@ class Csar(var path: Path) {
                 writeHeader(reader, writer)
                 writer.write(strg)
                 writer.write(info)
-                val filePartitionSize = writeFilePartition(writer)
+                val filePartitionSize = writeFilePartition(writer, destination)
                 fixHeader(writer, strg.size, info.size, filePartitionSize)
             }
         }
+        Files.move(tempDestination, destination, StandardCopyOption.REPLACE_EXISTING)
+        path = destination
     }
 
     private fun writeHeader(reader: IBinaryReader, writer: IBinaryWriter) {
@@ -127,11 +126,11 @@ class Csar(var path: Path) {
         writer.writeInt(fileSize)
     }
 
-    private fun writeFilePartition(writer: IBinaryWriter): Int {
+    private fun writeFilePartition(writer: IBinaryWriter, destination: Path): Int {
         fileAddress = writer.tell().toLong()
         writer.write("FILE".toByteArray(StandardCharsets.UTF_8))
         while (writer.tell().toLong() != fileAddress + 0x20) writer.writeInt(0) // Fill out the rest of the header...
-        writeFiles(writer, fileAddress)
+        writeFiles(writer, fileAddress, destination)
 
         val filePartitionSize = (writer.tell() - fileAddress).toInt()
         writer.seek((fileAddress + 4).toInt())
@@ -139,14 +138,14 @@ class Csar(var path: Path) {
         return filePartitionSize
     }
 
-    private fun writeFiles(writer: IBinaryWriter, filePartitionAddress: Long) {
+    private fun writeFiles(writer: IBinaryWriter, filePartitionAddress: Long, destination: Path) {
         for (entry in files) {
             if (entry is InternalFileReference) {
                 while (writer.tell() % 0x20 != 0) writer.writeByte(0)
                 assert(filePartitionAddress + entry.fileAddress + 8 == writer.tell().toLong())
                 writer.write(entry.retriever.retrieve())
                 entry.retriever = BasicFileRetriever(
-                    path,
+                    destination,
                     filePartitionAddress + entry.fileAddress + 8,
                     entry.fileSize(),
                     byteOrder
@@ -305,10 +304,9 @@ class Csar(var path: Path) {
     }
 
     private fun importSoundsFromSoundSet(set: SoundSet, player: Player) {
-        for (sound in set.sounds) {
+        for (sound in set.sounds)
             sound.player.value = player
-            configs.add(sound)
-        }
+        configs.addAll(set.sounds)
     }
 
     private fun findAssociatedSets(archive: Archive): List<SoundSet> {
