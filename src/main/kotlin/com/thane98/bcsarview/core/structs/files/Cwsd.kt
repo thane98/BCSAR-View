@@ -16,6 +16,8 @@ class Cwsd(reader: IBinaryReader) {
     init {
         val baseAddress = reader.tell()
         reader.verifyMagic("CWSD")
+        reader.seek(baseAddress + 0xC)
+        val fileSize = reader.readInt()
         reader.seek(baseAddress + 0x18)
         val infoAddress = baseAddress + reader.readInt()
         reader.seek(infoAddress)
@@ -25,7 +27,7 @@ class Cwsd(reader: IBinaryReader) {
         reader.seek(infoAddress + 0x14)
         val configTableAddress = infoAddress + reader.readInt() + 8
         entries = readEntryTable(reader, entryTableAddress)
-        configs = readConfigTable(reader, configTableAddress)
+        configs = readConfigTable(reader, configTableAddress, fileSize)
     }
 
     fun moveToArchive(archiveId: Int) {
@@ -53,13 +55,27 @@ class Cwsd(reader: IBinaryReader) {
         return result
     }
 
-    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long): List<ByteArray> {
+    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, fileSize: Int): List<ByteArray> {
         val result = mutableListOf<ByteArray>()
+        val addresses = readConfigAddresses(reader, baseAddress)
+        for (i in 0 until addresses.size) {
+            val length = if (i == addresses.lastIndex)
+                fileSize - addresses[i]
+            else
+                addresses[i + 1] - addresses[i]
+            reader.seek(baseAddress + addresses[i])
+            result.add(reader.read(length.toInt()).array())
+        }
+        return result
+    }
+
+    private fun readConfigAddresses(reader: IBinaryReader, baseAddress: Long): List<Long> {
         reader.seek(baseAddress)
+        val result = mutableListOf<Long>()
         val numEntries = reader.readInt()
         for (i in 0 until numEntries) {
-            reader.seek(baseAddress + numEntries * 0x8 + i * 0x8C + 4)
-            result.add(reader.read(0x8C).array())
+            reader.seek(baseAddress + i * 0x8 + 8)
+            result.add(reader.readInt().toLong())
         }
         return result
     }
@@ -94,13 +110,16 @@ class Cwsd(reader: IBinaryReader) {
             writer.writeByte(0x5)
             writer.writeInt(entry.archiveIndex)
         }
+
+        val rawConfigs = mutableListOf<Byte>()
         writer.writeInt(configs.size)
         for (i in 0 until configs.size) {
             writer.writeInt(0x4900)
-            writer.writeInt(i * 0x8C + configs.size * 8 + 4)
+            writer.writeInt(rawConfigs.size + configs.size * 8 + 4)
+            for (byte in configs[i])
+                rawConfigs.add(byte)
         }
-        for (config in configs)
-            writer.write(config)
+        writer.write(rawConfigs.toByteArray())
     }
 
     private fun calculateFileSize(): Int {

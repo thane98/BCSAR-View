@@ -304,8 +304,9 @@ class Csar(var path: Path) {
     }
 
     private fun importSoundsFromSoundSet(set: SoundSet, player: Player) {
-        for (sound in set.sounds)
+        for (sound in set.sounds) {
             sound.player.value = player
+        }
         configs.addAll(set.sounds)
     }
 
