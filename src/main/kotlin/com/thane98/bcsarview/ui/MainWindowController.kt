@@ -145,8 +145,11 @@ class MainWindowController: Initializable {
         if (selection != null) {
             waitingIndicator.isVisible = true
             thread {
-                csar.value.save(selection.toPath())
-                Platform.runLater { waitingIndicator.isVisible = false }
+                try {
+                    csar.value.save(selection.toPath())
+                } finally {
+                    Platform.runLater { waitingIndicator.isVisible = false }
+                }
             }
         }
     }

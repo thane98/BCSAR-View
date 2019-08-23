@@ -2,8 +2,11 @@ package com.thane98.bcsarview.core.structs.files
 
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
+import com.thane98.bcsarview.core.io.ByteArrayBinaryReader
 import com.thane98.bcsarview.core.io.ByteListWriter
 import com.thane98.bcsarview.core.io.verifyMagic
+import com.thane98.bcsarview.core.utils.putInt
+import java.lang.IllegalStateException
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 
@@ -27,7 +30,7 @@ class Cwsd(reader: IBinaryReader) {
         reader.seek(infoAddress + 0x14)
         val configTableAddress = infoAddress + reader.readInt() + 8
         entries = readEntryTable(reader, entryTableAddress)
-        configs = readConfigTable(reader, configTableAddress, fileSize)
+        configs = readConfigTable(reader, configTableAddress, (baseAddress + fileSize).toInt())
     }
 
     fun moveToArchive(archiveId: Int) {
@@ -55,12 +58,12 @@ class Cwsd(reader: IBinaryReader) {
         return result
     }
 
-    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, fileSize: Int): List<ByteArray> {
+    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, fileEnd: Int): List<ByteArray> {
         val result = mutableListOf<ByteArray>()
         val addresses = readConfigAddresses(reader, baseAddress)
         for (i in 0 until addresses.size) {
             val length = if (i == addresses.lastIndex)
-                fileSize - addresses[i]
+                fileEnd - (baseAddress + addresses[i])
             else
                 addresses[i + 1] - addresses[i]
             reader.seek(baseAddress + addresses[i])
@@ -83,23 +86,27 @@ class Cwsd(reader: IBinaryReader) {
     fun serialize(byteOrder: ByteOrder): ByteArray {
         val result = mutableListOf<Byte>()
         val writer = ByteListWriter(result, byteOrder)
-        val fileSize = calculateFileSize()
         writer.write("CWSD".toByteArray(StandardCharsets.UTF_8))
         writer.writeShort(0xFEFF)
         writer.writeShort(0x20)
         writer.writeInt(0x1000100)
-        writer.writeInt(fileSize)
+        writer.writeInt(0) // File size. Need to revisit.
         writer.writeInt(1)
         writer.writeInt(0x6800)
         writer.writeInt(0x20)
-        writer.writeInt(fileSize - 0x20) // Size of info partition
-        serializeInfo(writer, fileSize - 0x20)
+        writer.writeInt(0) // INFO partition size. Need to revisit.
+        val infoSize = serializeInfo(writer, byteOrder)
+        writer.seek(0xC)
+        writer.writeInt(result.size)
+        writer.seek(0x1C)
+        writer.writeInt(infoSize)
         return result.toByteArray()
     }
 
-    private fun serializeInfo(writer: IBinaryWriter, size: Int) {
+    private fun serializeInfo(writer: IBinaryWriter, byteOrder: ByteOrder): Int {
+        val baseAddress = writer.tell()
         writer.write("INFO".toByteArray(StandardCharsets.UTF_8))
-        writer.writeInt(size)
+        writer.writeInt(0) // INFO partition size. Need to revisit.
         writer.writeInt(0x100)
         writer.writeInt(0x10)
         writer.writeInt(0x101)
@@ -112,6 +119,7 @@ class Cwsd(reader: IBinaryReader) {
         }
 
         val rawConfigs = mutableListOf<Byte>()
+        adjustConfigs(byteOrder)
         writer.writeInt(configs.size)
         for (i in 0 until configs.size) {
             writer.writeInt(0x4900)
@@ -120,9 +128,28 @@ class Cwsd(reader: IBinaryReader) {
                 rawConfigs.add(byte)
         }
         writer.write(rawConfigs.toByteArray())
+        val infoSize = writer.tell() - baseAddress
+        writer.seek(baseAddress + 4)
+        writer.writeInt(infoSize)
+        return writer.tell() - 0x20
     }
 
-    private fun calculateFileSize(): Int {
-        return entries.size * 8 + configs.size * 0x94 + 0x40
+    // CWSD configs have a field for their index. Ex. For sound 5 the value is 5, sound 4 the value is 4, etc.
+    // To make insertion / removal easier, we'll redo this field whenever we go to save.
+    private fun adjustConfigs(byteOrder: ByteOrder) {
+        for (i in 0 until configs.size) {
+            val reader = ByteArrayBinaryReader(configs[i], byteOrder)
+            reader.use {
+                reader.seek(0x14)
+                reader.seek(reader.readInt().toLong())
+                if (reader.readInt() == 1) {
+                    val type = reader.readInt()
+                    if (type != 0x4902)
+                        throw IllegalStateException("Found type 0x${type.toString(16)} while adjust CWSD configs.")
+                    reader.seek(reader.tell() + 4)
+                    configs[i].putInt(i, reader.tell().toInt(), byteOrder)
+                }
+            }
+        }
     }
 }

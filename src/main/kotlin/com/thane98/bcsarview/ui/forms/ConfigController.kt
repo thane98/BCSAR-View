@@ -31,8 +31,6 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
     @FXML
     private lateinit var playerColumn: TableColumn<AudioConfig, Player>
     @FXML
-    private lateinit var unknownColumn: TableColumn<AudioConfig, Number>
-    @FXML
     private lateinit var unknownThreeColumn: TableColumn<AudioConfig, ByteArray>
 
     val csar = SimpleObjectProperty<Csar>()
@@ -43,8 +41,6 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
         nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         playerColumn.setCellValueFactory { it.value.player }
         playerColumn.setCellFactory { ComboBoxTableCell<AudioConfig, Player>(csar.value.players) }
-        unknownColumn.setCellValueFactory { it.value.unknown }
-        unknownColumn.cellFactory = TextFieldTableCell.forTableColumn(NumberStringConverter())
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
         unknownThreeColumn.setCellFactory { HexAreaTableCell<AudioConfig>() }
     }
@@ -56,9 +52,11 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
             val dumpItem = MenuItem("Dump")
             val massEditMenu = Menu("Mass Edit")
             val massEditPlayersItem = MenuItem("Players")
+            val massEditConfigsItem = MenuItem("Configs")
             dumpItem.setOnAction { dumpSound(row.item) }
             massEditPlayersItem.setOnAction { openMassEditPlayers() }
-            massEditMenu.items.addAll(massEditPlayersItem)
+            massEditConfigsItem.setOnAction { openMassEditConfigs() }
+            massEditMenu.items.addAll(massEditPlayersItem, massEditConfigsItem)
             contextMenu.items.addAll(dumpItem, massEditMenu)
             row.setOnContextMenuRequested { e ->
                 if (row.item != null && row.item.configType != ConfigType.EXTERNAL_SOUND)
@@ -71,6 +69,14 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
     private fun openMassEditPlayers() {
         val loader = FXMLLoader()
         loader.setController(MassEditPlayersForSoundsController(csar.value))
+        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("MassEdit.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
+    }
+
+    private fun openMassEditConfigs() {
+        val loader = FXMLLoader()
+        loader.setController(MassEditExtendedConfigsController(csar.value))
         val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("MassEdit.fxml"))
         applyStyles(stage.scene)
         stage.showAndWait()

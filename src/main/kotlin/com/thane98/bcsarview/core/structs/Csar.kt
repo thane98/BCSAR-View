@@ -4,12 +4,9 @@ import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
-import com.thane98.bcsarview.core.io.BinaryReader
-import com.thane98.bcsarview.core.io.BinaryWriter
-import com.thane98.bcsarview.core.io.determineByteOrder
+import com.thane98.bcsarview.core.io.*
 import com.thane98.bcsarview.core.io.retrievers.BasicFileRetriever
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
-import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
@@ -304,9 +301,8 @@ class Csar(var path: Path) {
     }
 
     private fun importSoundsFromSoundSet(set: SoundSet, player: Player) {
-        for (sound in set.sounds) {
+        for (sound in set.sounds)
             sound.player.value = player
-        }
         configs.addAll(set.sounds)
     }
 

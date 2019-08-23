@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.Scene?>
 <?import javafx.stage.Stage?>
-<Stage fx:id="stage" xmlns:fx="http://javafx.com/fxml/1">
+<Stage fx:id="stage" title="Mass Edit" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
             <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
