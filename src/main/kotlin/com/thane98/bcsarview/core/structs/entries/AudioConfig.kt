@@ -11,6 +11,7 @@ import com.thane98.bcsarview.core.structs.Strg
 import com.thane98.bcsarview.core.utils.putInt
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 

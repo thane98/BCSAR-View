@@ -13,8 +13,8 @@ import java.nio.charset.StandardCharsets
 class CwsdEntry(var archiveIndex: Int, var archiveId: Int)
 
 class Cwsd(reader: IBinaryReader) {
-    val entries: List<CwsdEntry>
-    val configs: List<ByteArray>
+    val entries: MutableList<CwsdEntry>
+    val configs: MutableList<ByteArray>
 
     init {
         val baseAddress = reader.tell()
@@ -45,7 +45,7 @@ class Cwsd(reader: IBinaryReader) {
         }
     }
 
-    private fun readEntryTable(reader: IBinaryReader, baseAddress: Long): List<CwsdEntry> {
+    private fun readEntryTable(reader: IBinaryReader, baseAddress: Long): MutableList<CwsdEntry> {
         val result = mutableListOf<CwsdEntry>()
         reader.seek(baseAddress)
         val numEntries = reader.readInt()
@@ -58,7 +58,7 @@ class Cwsd(reader: IBinaryReader) {
         return result
     }
 
-    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, fileEnd: Int): List<ByteArray> {
+    private fun readConfigTable(reader: IBinaryReader, baseAddress: Long, fileEnd: Int): MutableList<ByteArray> {
         val result = mutableListOf<ByteArray>()
         val addresses = readConfigAddresses(reader, baseAddress)
         for (i in 0 until addresses.size) {

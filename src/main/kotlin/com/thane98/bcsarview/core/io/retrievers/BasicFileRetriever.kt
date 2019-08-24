@@ -33,4 +33,8 @@ class BasicFileRetriever(
         reader.seek(address)
         return reader
     }
+
+    override fun toString(): String {
+        return "File in ${source.fileName} at 0x${address.toString(16)}"
+    }
 }

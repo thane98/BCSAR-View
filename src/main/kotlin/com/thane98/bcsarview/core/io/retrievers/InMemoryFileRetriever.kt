@@ -5,7 +5,11 @@ import com.thane98.bcsarview.core.interfaces.IFileRetriever
 import com.thane98.bcsarview.core.io.ByteArrayBinaryReader
 import java.nio.ByteOrder
 
-class InMemoryFileRetriever(private val rawFile: ByteArray, private val byteOrder: ByteOrder) : IFileRetriever {
+class InMemoryFileRetriever(
+    private val rawFile: ByteArray,
+    private val byteOrder: ByteOrder,
+    private val sourceFile: String = "In-Memory File"
+) : IFileRetriever {
     override fun fileSize(): Int { return rawFile.size }
 
     override fun retrieve(): ByteArray {
@@ -15,4 +19,6 @@ class InMemoryFileRetriever(private val rawFile: ByteArray, private val byteOrde
     override fun open(): IBinaryReader {
         return ByteArrayBinaryReader(rawFile, byteOrder)
     }
+
+    override fun toString(): String { return sourceFile }
 }

@@ -12,6 +12,7 @@ import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import com.thane98.bcsarview.ui.utils.applyStyles
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -29,6 +30,8 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
     @FXML
     private lateinit var nameColumn: TableColumn<AudioConfig, String>
     @FXML
+    private lateinit var typeColumn: TableColumn<AudioConfig, String>
+    @FXML
     private lateinit var playerColumn: TableColumn<AudioConfig, Player>
     @FXML
     private lateinit var unknownThreeColumn: TableColumn<AudioConfig, ByteArray>
@@ -39,6 +42,7 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
         setupContextMenu()
         nameColumn.setCellValueFactory { it.value.name }
         nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
+        typeColumn.setCellValueFactory { SimpleStringProperty(it.value.configType.name) }
         playerColumn.setCellValueFactory { it.value.player }
         playerColumn.setCellFactory { ComboBoxTableCell<AudioConfig, Player>(csar.value.players) }
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }

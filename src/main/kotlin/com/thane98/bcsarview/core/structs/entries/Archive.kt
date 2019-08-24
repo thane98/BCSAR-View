@@ -9,6 +9,7 @@ import com.thane98.bcsarview.core.structs.Strg
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 
+// TODO: Generate entry count before serializing
 class Archive(): AbstractNamedEntry() {
     val file = SimpleObjectProperty<InternalFileReference>()
     val unknown = SimpleIntegerProperty()

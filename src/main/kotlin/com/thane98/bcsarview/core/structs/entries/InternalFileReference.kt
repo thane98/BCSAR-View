@@ -41,4 +41,5 @@ class InternalFileReference() : IEntry, IFileRetriever {
     override fun retrieve(): ByteArray { return retriever.retrieve() }
     override fun open(): IBinaryReader { return retriever.open() }
     override fun <T> accept(visitor: IEntryVisitor<T>): T { return visitor.visitInternalFileReference(this) }
+    override fun toString(): String { return retriever.toString() }
 }

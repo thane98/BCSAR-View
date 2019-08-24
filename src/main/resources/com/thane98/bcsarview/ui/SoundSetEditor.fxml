@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.stage.Stage?>
+<?import javafx.scene.Scene?>
+<?import org.controlsfx.glyphfont.Glyph?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
+<?import org.controlsfx.control.PrefixSelectionComboBox?>
+<Stage fx:id="stage" title="Sound Set Editor" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <scene>
+        <Scene>
+            <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="531.0" prefWidth="887.0" spacing="10.0">
+                <padding>
+                    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+                </padding>
+                <Label style="-fx-font-size: 18;" text="Sounds"/>
+                <TextField fx:id="searchField" promptText="Search..." />
+                <ListView fx:id="soundsList" />
+                <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                    <buttons>
+                        <Button fx:id="addSoundButton" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="20.0" onAction="#addSound">
+                            <graphic>
+                                <Glyph fontFamily="FontAwesome" icon="PLUS" />
+                            </graphic>
+                        </Button>
+                        <Button fx:id="removeSoundButton" layoutX="772.0" layoutY="15.0" maxWidth="20.0" minWidth="20.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="20.0" onAction="#removeSound">
+                            <graphic>
+                                <Glyph fontFamily="FontAwesome" icon="MINUS" />
+                            </graphic>
+                        </Button>
+                    </buttons>
+                </ButtonBar>
+                <HBox alignment="CENTER_LEFT" prefHeight="3.0" prefWidth="847.0" spacing="20.0">
+                    <Label style="-fx-font-size: 18;" text="Template Sound:"/>
+                    <PrefixSelectionComboBox fx:id="templateSoundBox" prefHeight="35.0" prefWidth="325.0"/>
+                </HBox>
+                <ButtonBar layoutX="30.0" layoutY="271.0" prefHeight="40.0" prefWidth="200.0">
+                    <buttons>
+                        <Button fx:id="commitButton" mnemonicParsing="false" text="Commit" onAction="#commit" />
+                        <Button layoutX="772.0" layoutY="15.0" mnemonicParsing="false" text="Cancel" onAction="#cancel" />
+                    </buttons>
+                </ButtonBar>
+            </VBox>
+        </Scene>
+    </scene>
+</Stage>

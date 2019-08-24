@@ -4,19 +4,22 @@ import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
-import com.thane98.bcsarview.core.io.*
+import com.thane98.bcsarview.core.io.BinaryReader
+import com.thane98.bcsarview.core.io.BinaryWriter
+import com.thane98.bcsarview.core.io.determineByteOrder
 import com.thane98.bcsarview.core.io.retrievers.BasicFileRetriever
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
+import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
+import com.thane98.bcsarview.core.structs.files.CwsdEntry
 import com.thane98.bcsarview.core.utils.dumpCwav
 import javafx.collections.ObservableList
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
-import java.util.concurrent.TimeUnit
 
 class Csar(var path: Path) {
     private val info: Info
@@ -313,5 +316,50 @@ class Csar(var path: Path) {
     fun importSoundSets(sets: List<SoundSet>, player: Player) {
         for (set in sets)
             importSoundSetWithNewArchive(set, player)
+    }
+
+    fun replaceSound(soundSet: SoundSet, target: AudioConfig, newSound: ByteArray) {
+        val wsdIndex = soundSet.sounds.indexOf(target)
+        assert(wsdIndex != -1)
+        withCwsdCwarMapping(soundSet.file.value, soundSet.archive.value.file.value) { wsd, war ->
+            war.files[wsd.entries[wsdIndex].archiveIndex] = newSound
+            soundSet.archive.value.file.value.retriever = InMemoryFileRetriever(
+                war.serialize(byteOrder),
+                byteOrder
+            )
+        }
+    }
+
+    fun addNewSoundsToSet(soundSet: SoundSet, sounds: List<AudioConfig>, rawSounds: List<ByteArray>, template: AudioConfig) {
+        val wsdConfig = readTemplateSoundWsdConfig(template)
+        val archiveId = archives.indexOf(soundSet.archive.value)
+        configs.addAll(sounds)
+        soundSet.sounds.addAll(sounds)
+        soundSet.archive.value.entryCount.value += sounds.size
+        withCwsdCwarMapping(soundSet.file.value, soundSet.archive.value.file.value) { wsd, war ->
+            for (i in 0 until rawSounds.size) {
+                wsd.entries.add(CwsdEntry(war.files.size, archiveId))
+                wsd.configs.add(wsdConfig.copyOf())
+                war.files.add(rawSounds[i])
+                soundSet.file.value.retriever = InMemoryFileRetriever(
+                    wsd.serialize(byteOrder),
+                    byteOrder
+                )
+                soundSet.archive.value.file.value.retriever = InMemoryFileRetriever(
+                    war.serialize(byteOrder),
+                    byteOrder
+                )
+            }
+        }
+    }
+
+    private fun readTemplateSoundWsdConfig(template: AudioConfig): ByteArray {
+        val soundSet = findSoundSetForSound(template)
+        val wsdIndex = soundSet!!.sounds.indexOf(template)
+        val reader = soundSet.file.value.open()
+        reader.use {
+            val wsd = Cwsd(reader)
+            return wsd.configs[wsdIndex]
+        }
     }
 }

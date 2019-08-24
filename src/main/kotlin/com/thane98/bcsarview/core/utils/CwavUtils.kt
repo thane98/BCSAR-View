@@ -42,7 +42,7 @@ private fun executeConversionCommand(command: String) {
         throw FailedConversionException(command)
 }
 
-fun readCwav(source: Path): ByteArray {
+fun readAndConvertWav(source: Path): ByteArray {
     val file = source.toFile()
     return if (file.extension == ".cwav")
         Files.readAllBytes(source)

@@ -2,15 +2,19 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.SoundSet
+import com.thane98.bcsarview.ui.Main
 import com.thane98.bcsarview.ui.utils.applyStyles
+import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.scene.control.*
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
+import javafx.stage.Stage
 import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
@@ -40,12 +44,23 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
             val contextMenu = ContextMenu()
             val dumpItem = MenuItem("Dump")
             val extractItem = MenuItem("Extract Sounds")
-            contextMenu.items.addAll(dumpItem, extractItem)
+            val editItem = MenuItem("Edit Contents")
+            contextMenu.items.addAll(dumpItem, extractItem, editItem)
             dumpItem.setOnAction { dumpSoundSet(row.item) }
             extractItem.setOnAction { extractSoundSet(row.item) }
+            editItem.setOnAction { openSoundSetEditor(row.item) }
             row.contextMenu = contextMenu
             row
         }
+    }
+
+    private fun openSoundSetEditor(soundSet: SoundSet) {
+        val loader = FXMLLoader()
+        loader.setController(SoundSetEditorController(csar.value, soundSet))
+        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("SoundSetEditor.fxml"))
+        applyStyles(stage.scene)
+        stage.showAndWait()
+        table.refresh()
     }
 
     private fun dumpSoundSet(soundSet: SoundSet) {
