@@ -4,13 +4,13 @@ import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
 import com.thane98.bcsarview.core.structs.entries.Player
 import com.thane98.bcsarview.ui.utils.applyStyles
+import com.thane98.bcsarview.ui.utils.createErrorDialog
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.Alert
 import javafx.scene.control.ComboBox
 import javafx.scene.control.TextField
 import javafx.stage.Stage
-import java.lang.Exception
 import java.net.URL
 import java.util.*
 
@@ -44,17 +44,14 @@ class AddExternalSoundController(private val csar: Csar) : Initializable {
                     configBox.selectionModel.selectedItem
                 )
                 stage.close()
-            } catch(ex: Exception) {
+            } catch (ex: Exception) {
                 showAddFailureAlert(ex)
             }
         }
     }
 
     private fun showAddFailureAlert(ex: Exception) {
-        val alert = Alert(Alert.AlertType.ERROR)
-        alert.title = "Add Failed"
-        alert.headerText = "Unable to add external sound."
-        alert.contentText = ex.message
+        createErrorDialog(ex, "Unable to add external sound.").showAndWait()
     }
 
     private fun showInvalidFieldsAlert() {

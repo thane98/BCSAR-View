@@ -22,8 +22,6 @@ class GroupController : AbstractEntryController<SoundGroup>() {
     @FXML
     private lateinit var unknownColumn: TableColumn<SoundGroup, Number>
 
-    val csar = SimpleObjectProperty<Csar>()
-
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
         nameColumn.setCellValueFactory { it.value.name }

@@ -7,15 +7,18 @@ import javafx.stage.FileChooser
 import java.lang.Exception
 import javafx.stage.Stage
 
+class Dialogs {
+    companion object {
+        val bcsarChooser = FileChooser()
 
-fun createBcsarOpenDialog(): FileChooser {
-    val dialog = FileChooser()
-    dialog.title = "Open Sound Archive"
-    dialog.extensionFilters.addAll(
-        FileChooser.ExtensionFilter("3DS Sound Archives", "*.bcsar"),
-        FileChooser.ExtensionFilter("All Files", "*.*")
-    )
-    return dialog
+        init {
+            bcsarChooser.title = "Select a sound archive."
+            bcsarChooser.extensionFilters.addAll(
+                FileChooser.ExtensionFilter("3DS Sound Archives", "*.bcsar"),
+                FileChooser.ExtensionFilter("All Files", "*.*")
+            )
+        }
+    }
 }
 
 fun createErrorDialog(throwable: Throwable, headerText: String): Stage {

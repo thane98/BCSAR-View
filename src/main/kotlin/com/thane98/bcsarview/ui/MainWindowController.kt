@@ -4,27 +4,25 @@ import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.ui.forms.*
+import com.thane98.bcsarview.ui.utils.Dialogs
 import com.thane98.bcsarview.ui.utils.applyStyles
-import com.thane98.bcsarview.ui.utils.createBcsarOpenDialog
+import com.thane98.bcsarview.ui.utils.loadAndShowForm
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
 import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
-import javafx.stage.FileChooser
-import javafx.stage.Stage
 import java.net.URL
-import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 import kotlin.concurrent.thread
 
-class MainWindowController: Initializable {
+class MainWindowController : Initializable {
     @FXML
     private lateinit var waitingEffect: Region
     @FXML
@@ -78,11 +76,6 @@ class MainWindowController: Initializable {
         saveAsButton.disableProperty().bind(Bindings.isNull(csar))
         closeMenuItem.disableProperty().bind(Bindings.isNull(csar))
         closeButton.disableProperty().bind(Bindings.isNull(csar))
-        configsController.csar.bind(csar)
-        soundSetsController.csar.bind(csar)
-        banksController.csar.bind(csar)
-        archivesController.csar.bind(csar)
-        groupsController.csar.bind(csar)
         controllers = listOf(
             configsController,
             soundSetsController,
@@ -92,10 +85,8 @@ class MainWindowController: Initializable {
             groupsController,
             playersController
         )
-        csar.addListener { _ ->
-            for (controller in controllers)
-                controller.onFileChange(csar.value)
-        }
+        for (controller in controllers)
+            controller.csar.bind(csar)
     }
 
     @FXML
@@ -106,9 +97,10 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun openFile() {
-        val dialog = createBcsarOpenDialog()
+        val dialog = Dialogs.bcsarChooser
         val selection = dialog.showOpenDialog(tabs.scene.window)
         if (selection != null) {
+            dialog.initialDirectory = selection.parentFile
             waitingIndicator.isVisible = true
             thread {
                 val opened = Csar(selection.toPath())
@@ -122,34 +114,26 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun saveFile() {
-        waitingIndicator.isVisible = true
-        thread {
-            try {
-                csar.value.save(csar.value.path)
-            } finally {
-                Platform.runLater { waitingIndicator.isVisible = false }
-            }
-        }
+        saveOnDifferentThread(csar.value.path)
     }
 
     @FXML
     private fun saveFileAs() {
-        val dialog = FileChooser()
-        dialog.title = "Save Sound Archive"
-        dialog.extensionFilters.addAll(
-            FileChooser.ExtensionFilter("3DS Sound Archives", "*.bcsar"),
-            FileChooser.ExtensionFilter("All Files", "*.*")
-        )
-
+        val dialog = Dialogs.bcsarChooser
         val selection = dialog.showSaveDialog(tabs.scene.window)
         if (selection != null) {
-            waitingIndicator.isVisible = true
-            thread {
-                try {
-                    csar.value.save(selection.toPath())
-                } finally {
-                    Platform.runLater { waitingIndicator.isVisible = false }
-                }
+            dialog.initialDirectory = selection.parentFile
+            saveOnDifferentThread(selection.toPath())
+        }
+    }
+
+    private fun saveOnDifferentThread(path: Path) {
+        waitingIndicator.isVisible = true
+        thread {
+            try {
+                csar.value.save(path)
+            } finally {
+                Platform.runLater { waitingIndicator.isVisible = false }
             }
         }
     }
@@ -161,9 +145,7 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun openPreferences() {
-        val stage = FXMLLoader.load<Stage>(this.javaClass.getResource("Preferences.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("Preferences.fxml")
     }
 
     @FXML
@@ -173,48 +155,28 @@ class MainWindowController: Initializable {
 
     @FXML
     private fun importArchive() {
-        val loader = FXMLLoader()
-        loader.setController(ImportArchiveController(csar.value))
-        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("Import.fxml", ImportArchiveController(csar.value))
     }
 
     @FXML
     private fun importSoundSet() {
-        val loader = FXMLLoader()
-        loader.setController(ImportSoundSetController(csar.value))
-        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("Import.fxml", ImportSoundSetController(csar.value))
     }
 
     @FXML
     private fun importExternalSound() {
-        val loader = FXMLLoader()
-        loader.setController(ImportExternalSoundsController(csar.value))
-        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("Import.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("Import.fxml", ImportExternalSoundsController(csar.value))
     }
 
     @FXML
     private fun addExternalSound() {
-        val loader = FXMLLoader()
-        loader.setController(AddExternalSoundController(csar.value))
-        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("AddExternalSound.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("AddExternalSound.fxml", AddExternalSoundController(csar.value))
     }
 
     @FXML
     private fun openMassRename() {
         val currentController = controllers[tabs.selectionModel.selectedIndex]
-        val loader = FXMLLoader()
-        loader.setController(MassRenameController(currentController.retrieveEntries()))
-        val stage = loader.load<Stage>(this.javaClass.getResourceAsStream("MassRename.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("MassRename.fxml", MassRenameController(currentController.retrieveEntries()))
         currentController.refresh()
     }
 }

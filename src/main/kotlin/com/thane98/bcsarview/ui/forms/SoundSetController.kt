@@ -4,6 +4,7 @@ import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.SoundSet
 import com.thane98.bcsarview.ui.Main
 import com.thane98.bcsarview.ui.utils.applyStyles
+import com.thane98.bcsarview.ui.utils.loadAndShowForm
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -26,8 +27,6 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
     private lateinit var unknownThreeColumn: TableColumn<SoundSet, Number>
     @FXML
     private lateinit var archiveColumn: TableColumn<SoundSet, String>
-
-    val csar = SimpleObjectProperty<Csar>()
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
@@ -55,11 +54,7 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
     }
 
     private fun openSoundSetEditor(soundSet: SoundSet) {
-        val loader = FXMLLoader()
-        loader.setController(SoundSetEditorController(csar.value, soundSet))
-        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("SoundSetEditor.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("SoundSetEditor.fxml", SoundSetEditorController(csar.value, soundSet))
         table.refresh()
     }
 

@@ -2,7 +2,7 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.Player
-import com.thane98.bcsarview.ui.utils.createBcsarOpenDialog
+import com.thane98.bcsarview.ui.utils.Dialogs
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.Alert
@@ -32,9 +32,10 @@ abstract class AbstractImportController(protected val destinationCsar: Csar): In
 
     @FXML
     private fun openCsar() {
-        val dialog = createBcsarOpenDialog()
+        val dialog = Dialogs.bcsarChooser
         val result = dialog.showOpenDialog(stage)
         if (result != null) {
+            dialog.initialDirectory = result.parentFile
             fileNameField.text = result.name
             sourceCsar = Csar(result.toPath())
             onOpenCsar()

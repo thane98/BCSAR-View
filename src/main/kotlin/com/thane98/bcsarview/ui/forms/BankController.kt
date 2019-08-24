@@ -25,8 +25,6 @@ class BankController : AbstractEntryController<Bank>() {
     @FXML
     private lateinit var archiveColumn: TableColumn<Bank, String>
 
-    val csar = SimpleObjectProperty<Csar>()
-
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
         nameColumn.setCellValueFactory { it.value.name }

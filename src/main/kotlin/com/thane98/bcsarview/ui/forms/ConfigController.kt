@@ -6,10 +6,7 @@ import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
 import com.thane98.bcsarview.core.structs.entries.Player
 import com.thane98.bcsarview.ui.Main
-import com.thane98.bcsarview.ui.utils.ComboBoxTableCell
-import com.thane98.bcsarview.ui.utils.HexAreaTableCell
-import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
-import com.thane98.bcsarview.ui.utils.applyStyles
+import com.thane98.bcsarview.ui.utils.*
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -35,8 +32,6 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
     private lateinit var playerColumn: TableColumn<AudioConfig, Player>
     @FXML
     private lateinit var unknownThreeColumn: TableColumn<AudioConfig, ByteArray>
-
-    val csar = SimpleObjectProperty<Csar>()
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupContextMenu()
@@ -71,19 +66,11 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
     }
 
     private fun openMassEditPlayers() {
-        val loader = FXMLLoader()
-        loader.setController(MassEditPlayersForSoundsController(csar.value))
-        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("MassEdit.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("MassEdit.fxml", MassEditPlayersForSoundsController(csar.value))
     }
 
     private fun openMassEditConfigs() {
-        val loader = FXMLLoader()
-        loader.setController(MassEditExtendedConfigsController(csar.value))
-        val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("MassEdit.fxml"))
-        applyStyles(stage.scene)
-        stage.showAndWait()
+        loadAndShowForm("MassEdit.fxml", MassEditExtendedConfigsController(csar.value))
     }
 
     private fun dumpSound(config: AudioConfig) {
