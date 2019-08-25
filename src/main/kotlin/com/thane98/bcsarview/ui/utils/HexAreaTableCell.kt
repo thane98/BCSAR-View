@@ -28,8 +28,16 @@ class HexAreaTableCell<T> : TableCell<T, ByteArray>() {
         editor.id = "hex-area"
         editor.prefHeight = 150.0
         editor.isWrapText = true
+        editor.textProperty().addListener { _ -> parseTextIntoArray(editor.text, item) }
         result.children.addAll(toggle, editor)
         return result
+    }
+
+    private fun parseTextIntoArray(text: String, array: ByteArray) {
+        val newBytes = text.split(' ').map { Integer.parseInt(it, 16).toByte() }
+        assert(newBytes.size == array.size)
+        for (i in 0 until newBytes.size)
+            array[i] = newBytes[i]
     }
 
     private fun generateMask(item: ByteArray): String {
