@@ -1,21 +1,17 @@
 package com.thane98.bcsarview.ui.forms
 
+import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.SoundSet
-import com.thane98.bcsarview.ui.Main
 import com.thane98.bcsarview.ui.utils.applyStyles
 import com.thane98.bcsarview.ui.utils.loadAndShowForm
-import javafx.beans.binding.Bindings
-import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
 import javafx.scene.control.*
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
-import javafx.stage.Stage
 import javafx.util.converter.NumberStringConverter
 import java.net.URL
 import java.util.*
@@ -41,16 +37,26 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
         table.setRowFactory {
             val row = TableRow<SoundSet>()
             val contextMenu = ContextMenu()
+            val extractMenu = createExtractMenu(row)
             val dumpItem = MenuItem("Dump")
-            val extractItem = MenuItem("Extract Sounds")
             val editItem = MenuItem("Edit Contents")
-            contextMenu.items.addAll(dumpItem, extractItem, editItem)
             dumpItem.setOnAction { dumpSoundSet(row.item) }
-            extractItem.setOnAction { extractSoundSet(row.item) }
             editItem.setOnAction { openSoundSetEditor(row.item) }
+            contextMenu.items.addAll(extractMenu, dumpItem, editItem)
             row.contextMenu = contextMenu
             row
         }
+    }
+
+    private fun createExtractMenu(row: TableRow<SoundSet>): Menu {
+        val menu = Menu("Extract")
+        val extractToCwavItem = MenuItem("To CWAV")
+        val extractToWavItem = MenuItem("To WAV")
+        extractToCwavItem.setOnAction { extractSoundSet(row.item, false) }
+        extractToWavItem.setOnAction { extractSoundSet(row.item, true) }
+        extractToWavItem.disableProperty().bind(Configuration.cwavToWavCommand.isEmpty)
+        menu.items.addAll(extractToCwavItem, extractToWavItem)
+        return menu
     }
 
     private fun openSoundSetEditor(soundSet: SoundSet) {
@@ -76,7 +82,7 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
         return chooser
     }
 
-    private fun extractSoundSet(soundSet: SoundSet) {
+    private fun extractSoundSet(soundSet: SoundSet, convertToWav: Boolean) {
         if (soundSet.archive.value == null) {
             showInvalidExtractionDialog()
         } else {
@@ -84,7 +90,7 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
             chooser.title = "Select destination..."
             val result = chooser.showDialog(table.scene.window)
             if (result != null)
-                csar.value.extractSoundSet(soundSet, result.toPath())
+                csar.value.extractSoundSet(soundSet, result.toPath(), convertToWav)
         }
     }
 

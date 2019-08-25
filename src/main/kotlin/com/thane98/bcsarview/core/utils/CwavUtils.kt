@@ -12,15 +12,18 @@ import java.util.concurrent.TimeUnit
 
 class FailedConversionException(command: String): Exception(command)
 
-fun dumpCwav(cwavPath: Path, rawCwav: ByteArray) {
-    Files.write(cwavPath, rawCwav)
+fun dumpCwavToWav(wavPath: Path, rawCwav: ByteArray) {
     val commandTemplate = Configuration.cwavToWavCommand.value
-    if (commandTemplate != null && commandTemplate.isNotEmpty()) {
-        val wavFileName = cwavPath.toFile().nameWithoutExtension + ".wav"
-        val wavPath = cwavPath.resolveSibling(wavFileName)
-        val command = createConversionCommand(commandTemplate, cwavPath, wavPath)
+    if (commandTemplate == null || commandTemplate.isEmpty())
+        throw IllegalStateException("Cannot convert cwav to wav without a valid conversion command.")
+
+    val tempFilePath = File.createTempFile("bcsarview_wav_to_cwav_conv_step", ".cwav").toPath()
+    try {
+        Files.write(tempFilePath, rawCwav)
+        val command = createConversionCommand(commandTemplate, tempFilePath, wavPath)
         executeConversionCommand(command)
-        Files.delete(cwavPath)
+    } finally {
+        Files.delete(tempFilePath)
     }
 }
 

@@ -32,7 +32,7 @@ class CreateExternalSoundController(private val csar: Csar) : AbstractCreateCont
     }
 
     override fun create() {
-        csar.addExternalSound(
+        csar.createExternalSound(
             nameField.text,
             pathField.text,
             playerBox.selectionModel.selectedItem,

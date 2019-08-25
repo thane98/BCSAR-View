@@ -14,7 +14,7 @@ import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cwar
 import com.thane98.bcsarview.core.structs.files.Cwsd
 import com.thane98.bcsarview.core.structs.files.CwsdEntry
-import com.thane98.bcsarview.core.utils.dumpCwav
+import com.thane98.bcsarview.core.utils.dumpCwavToWav
 import javafx.collections.ObservableList
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
@@ -158,7 +158,7 @@ class Csar(var path: Path) {
         Files.write(destination, record.retriever.retrieve())
     }
 
-    fun dumpSound(config: AudioConfig, destination: Path) {
+    fun dumpSound(config: AudioConfig, destination: Path, convertToWav: Boolean) {
         if (config.configType == ConfigType.SEQUENCE)
             dumpFile(config.file.value as InternalFileReference, destination)
         else {
@@ -166,7 +166,7 @@ class Csar(var path: Path) {
                 ?: throw IllegalArgumentException("Target sound is not in a sound set!")
             val wsdIndex = soundSet.sounds.indexOf(config)
             withCwsdCwarMapping(soundSet.file.value, soundSet.archive.value.file.value) { wsd, war ->
-                dumpCwav(destination, war.files[wsd.entries[wsdIndex].archiveIndex])
+                dumpSound(destination, war.files[wsd.entries[wsdIndex].archiveIndex], convertToWav)
             }
         }
     }
@@ -175,18 +175,28 @@ class Csar(var path: Path) {
         return soundSets.find { it.sounds.contains(config) }
     }
 
-    fun extractSoundSet(soundSet: SoundSet, destination: Path) {
+    fun extractSoundSet(soundSet: SoundSet, destination: Path, convertToWav: Boolean) {
         val targetArchive = soundSet.archive.value
         withCwsdCwarMapping(soundSet.file.value, targetArchive.file.value) { wsd, war ->
             assert(wsd.entries.size == soundSet.sounds.size)
             for (i in 0 until soundSet.sounds.size) {
-                val destinationPath = Paths.get(destination.toString(), "${soundSet.sounds[i]}.cwav")
-                dumpCwav(destinationPath, war.files[wsd.entries[i].archiveIndex])
+                val destinationPath = if (convertToWav)
+                    Paths.get(destination.toString(), "${soundSet.sounds[i]}.wav")
+                else
+                    Paths.get(destination.toString(), "${soundSet.sounds[i]}.cwav")
+                dumpSound(destinationPath, war.files[wsd.entries[i].archiveIndex], convertToWav)
             }
         }
     }
 
-    fun addExternalSound(name: String, path: String, player: Player, sourceConfig: AudioConfig) {
+    private fun dumpSound(destination: Path, bytes: ByteArray, convertToWav: Boolean) {
+        if (convertToWav)
+            dumpCwavToWav(destination, bytes)
+        else
+            Files.write(destination, bytes)
+    }
+
+    fun createExternalSound(name: String, path: String, player: Player, sourceConfig: AudioConfig) {
         // TODO: Verify that name isn't in use
         val fileEntry = ExternalFileReference()
         fileEntry.path = path
@@ -197,6 +207,7 @@ class Csar(var path: Path) {
         newConfig.file.value = fileEntry
         newConfig.player.value = player
         newConfig.unknown.value = sourceConfig.unknown.value
+        newConfig.setIndexAddress = sourceConfig.setIndexAddress
         newConfig.unknownTwo.value = sourceConfig.unknownTwo.value.copyOf()
         newConfig.name.value = name
         newConfig.unknownThree.value = sourceConfig.unknownThree.value.copyOf()
