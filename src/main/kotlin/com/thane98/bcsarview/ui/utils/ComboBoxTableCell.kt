@@ -11,6 +11,7 @@ class ComboBoxTableCell<T, U>(items: ObservableList<U>) : TableCell<T, U>() {
         comboBox.items = items
         comboBox.selectionModel.selectedItemProperty().addListener { _ ->
             val newItem = comboBox.selectionModel.selectedItem
+            this.
             updateItem(newItem, newItem == null)
         }
     }

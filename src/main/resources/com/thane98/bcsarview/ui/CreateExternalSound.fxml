@@ -49,7 +49,7 @@
                             <Font name="System Bold" size="15.0"/>
                         </font>
                     </Label>
-                    <Label text="Config" GridPane.rowIndex="3">
+                    <Label text="Template" GridPane.rowIndex="3">
                         <font>
                             <Font name="System Bold" size="15.0"/>
                         </font>

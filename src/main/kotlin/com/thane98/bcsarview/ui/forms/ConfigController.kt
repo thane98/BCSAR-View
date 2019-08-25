@@ -2,24 +2,18 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.structs.Csar
-import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
 import com.thane98.bcsarview.core.structs.entries.ExternalFileReference
 import com.thane98.bcsarview.core.structs.entries.Player
-import com.thane98.bcsarview.ui.Main
-import com.thane98.bcsarview.ui.utils.*
-import javafx.beans.binding.Bindings
-import javafx.beans.property.SimpleObjectProperty
+import com.thane98.bcsarview.ui.utils.HexAreaTableCell
+import com.thane98.bcsarview.ui.utils.loadAndShowForm
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
-import javafx.fxml.FXMLLoader
-import javafx.fxml.Initializable
 import javafx.scene.control.*
+import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.TextFieldTableCell
 import javafx.stage.FileChooser
-import javafx.stage.Stage
-import javafx.util.converter.NumberStringConverter
 import java.lang.IllegalArgumentException
 import java.net.URL
 import java.util.*
@@ -40,7 +34,9 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
         nameColumn.cellFactory = TextFieldTableCell.forTableColumn()
         typeColumn.setCellValueFactory { SimpleStringProperty(it.value.configType.name) }
         playerColumn.setCellValueFactory { it.value.player }
-        playerColumn.setCellFactory { ComboBoxTableCell<AudioConfig, Player>(csar.value.players) }
+        playerColumn.setCellFactory {
+            ComboBoxTableCell.forTableColumn<AudioConfig, Player>(csar.value.players).call(playerColumn)
+        }
         unknownThreeColumn.setCellValueFactory { it.value.unknownThree }
         unknownThreeColumn.setCellFactory { HexAreaTableCell<AudioConfig>() }
     }
