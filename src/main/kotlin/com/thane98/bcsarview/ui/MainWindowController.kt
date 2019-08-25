@@ -187,4 +187,9 @@ class MainWindowController : Initializable {
     private fun openAbout() {
         loadAndShowForm("About.fxml")
     }
+
+    @FXML
+    private fun openCreatePlayer() {
+        loadAndShowForm("CreatePlayer.fxml", CreatePlayerController(csar.value))
+    }
 }
