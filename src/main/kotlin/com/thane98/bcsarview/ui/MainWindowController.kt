@@ -30,6 +30,8 @@ class MainWindowController : Initializable {
     @FXML
     private lateinit var editMenu: Menu
     @FXML
+    private lateinit var createMenu: Menu
+    @FXML
     private lateinit var saveMenuItem: MenuItem
     @FXML
     private lateinit var saveAsMenuItem: MenuItem
@@ -70,6 +72,7 @@ class MainWindowController : Initializable {
         HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
         waitingEffect.visibleProperty().bind(waitingIndicator.visibleProperty())
         editMenu.disableProperty().bind(Bindings.isNull(csar))
+        createMenu.disableProperty().bind(Bindings.isNull(csar))
         saveMenuItem.disableProperty().bind(Bindings.isNull(csar))
         saveButton.disableProperty().bind(Bindings.isNull(csar))
         saveAsMenuItem.disableProperty().bind(Bindings.isNull(csar))
@@ -178,5 +181,10 @@ class MainWindowController : Initializable {
         val currentController = controllers[tabs.selectionModel.selectedIndex]
         loadAndShowForm("MassRename.fxml", MassRenameController(currentController.retrieveEntries()))
         currentController.refresh()
+    }
+
+    @FXML
+    private fun openAbout() {
+        loadAndShowForm("About.fxml")
     }
 }

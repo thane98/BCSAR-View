@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+
+<?import javafx.scene.Scene?>
+<?import javafx.stage.Stage?>
+<Stage title="About BCSAR View" resizable="false">
+   <scene>
+      <Scene>
+         <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+               prefHeight="120.0" prefWidth="350.0" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.202-ea">
+            <padding>
+               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            </padding>
+            <Label alignment="CENTER" contentDisplay="CENTER" style="-fx-font-size: 20;" text="BCSAR View"/>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="162.0" layoutY="65.0" style="-fx-font-size: 16;"
+                   text="A BCSAR editing utility by thane98"/>
+            <Label alignment="CENTER" contentDisplay="CENTER" style="-fx-font-size: 16;" text="Version: 0.1"/>
+         </VBox>
+      </Scene>
+   </scene>
+</Stage>

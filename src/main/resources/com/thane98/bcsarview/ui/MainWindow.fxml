@@ -37,8 +37,16 @@
                     <MenuItem mnemonicParsing="false" text="Sound Set" onAction="#importSoundSet" />
                     <MenuItem mnemonicParsing="false" text="External Sound" onAction="#importExternalSound" />
                 </Menu>
-                <MenuItem mnemonicParsing="false" text="Add External Sound" onAction="#addExternalSound" />
                 <MenuItem mnemonicParsing="false" text="Mass Rename" onAction="#openMassRename" />
+            </Menu>
+            <Menu fx:id="createMenu" mnemonicParsing="false" text="Create">
+                <MenuItem mnemonicParsing="false" text="External Sound" onAction="#addExternalSound" />
+                <MenuItem mnemonicParsing="false" text="Player" />
+                <MenuItem mnemonicParsing="false" text="Sound Set" />
+                <MenuItem mnemonicParsing="false" text="Archive" />
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+                <MenuItem mnemonicParsing="false" text="About" onAction="#openAbout" />
             </Menu>
         </MenuBar>
         <ToolBar>
