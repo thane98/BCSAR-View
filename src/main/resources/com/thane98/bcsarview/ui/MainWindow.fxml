@@ -40,10 +40,10 @@
                 <MenuItem mnemonicParsing="false" text="Mass Rename" onAction="#openMassRename" />
             </Menu>
             <Menu fx:id="createMenu" mnemonicParsing="false" text="Create">
-                <MenuItem mnemonicParsing="false" text="External Sound" onAction="#addExternalSound" />
+                <MenuItem mnemonicParsing="false" text="External Sound" onAction="#openCreateExternalSound" />
                 <MenuItem mnemonicParsing="false" text="Player" onAction="#openCreatePlayer" />
-                <MenuItem mnemonicParsing="false" text="Sound Set" />
-                <MenuItem mnemonicParsing="false" text="Archive" />
+                <MenuItem mnemonicParsing="false" text="Sound Set" onAction="#openCreateSoundSet" />
+                <MenuItem mnemonicParsing="false" text="Archive" onAction="#openCreateArchive" />
             </Menu>
             <Menu mnemonicParsing="false" text="Help">
                 <MenuItem mnemonicParsing="false" text="About" onAction="#openAbout" />

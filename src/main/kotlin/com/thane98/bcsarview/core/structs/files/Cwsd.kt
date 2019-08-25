@@ -12,11 +12,11 @@ import java.nio.charset.StandardCharsets
 
 class CwsdEntry(var archiveIndex: Int, var archiveId: Int)
 
-class Cwsd(reader: IBinaryReader) {
-    val entries: MutableList<CwsdEntry>
-    val configs: MutableList<ByteArray>
+class Cwsd() {
+    val entries = mutableListOf<CwsdEntry>()
+    val configs = mutableListOf<ByteArray>()
 
-    init {
+    constructor(reader: IBinaryReader): this() {
         val baseAddress = reader.tell()
         reader.verifyMagic("CWSD")
         reader.seek(baseAddress + 0xC)
@@ -29,8 +29,8 @@ class Cwsd(reader: IBinaryReader) {
         val entryTableAddress = infoAddress + reader.readInt() + 8
         reader.seek(infoAddress + 0x14)
         val configTableAddress = infoAddress + reader.readInt() + 8
-        entries = readEntryTable(reader, entryTableAddress)
-        configs = readConfigTable(reader, configTableAddress, (baseAddress + fileSize).toInt())
+        entries.addAll(readEntryTable(reader, entryTableAddress))
+        configs.addAll(readConfigTable(reader, configTableAddress, (baseAddress + fileSize).toInt()))
     }
 
     fun moveToArchive(archiveId: Int) {

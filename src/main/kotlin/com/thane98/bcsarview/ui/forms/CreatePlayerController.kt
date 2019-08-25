@@ -12,9 +12,7 @@ import javafx.stage.Stage
 import java.net.URL
 import java.util.*
 
-class CreatePlayerController(private val csar: Csar) : Initializable {
-    @FXML
-    private lateinit var stage: Stage
+class CreatePlayerController(private val csar: Csar) : AbstractCreateController() {
     @FXML
     private lateinit var nameField: TextField
     @FXML
@@ -23,8 +21,6 @@ class CreatePlayerController(private val csar: Csar) : Initializable {
     private lateinit var unknownField: TextField
     @FXML
     private lateinit var heapSizeField: TextField
-    @FXML
-    private lateinit var createButton: Button
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         soundLimitField.textFormatter = createIntegerTextFormatter()
@@ -39,7 +35,7 @@ class CreatePlayerController(private val csar: Csar) : Initializable {
     }
 
     @FXML
-    private fun create() {
+    override fun create() {
         val player = Player()
         player.name.value = nameField.text
         player.soundLimit.value = Integer.parseInt(soundLimitField.text)
@@ -48,7 +44,4 @@ class CreatePlayerController(private val csar: Csar) : Initializable {
         csar.players.add(player)
         stage.close()
     }
-
-    @FXML
-    private fun cancel() { stage.close() }
 }

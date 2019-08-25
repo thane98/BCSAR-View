@@ -62,7 +62,7 @@
                 </GridPane>
                 <ButtonBar prefHeight="40.0" prefWidth="200.0">
                     <buttons>
-                        <Button mnemonicParsing="false" text="Add" onAction="#add" />
+                        <Button fx:id="createButton" mnemonicParsing="false" text="Create" onAction="#create" />
                         <Button layoutX="430.0" layoutY="16.0" mnemonicParsing="false" text="Cancel" onAction="#cancel"/>
                     </buttons>
                 </ButtonBar>

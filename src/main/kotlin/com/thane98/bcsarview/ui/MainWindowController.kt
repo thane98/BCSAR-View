@@ -172,11 +172,6 @@ class MainWindowController : Initializable {
     }
 
     @FXML
-    private fun addExternalSound() {
-        loadAndShowForm("AddExternalSound.fxml", AddExternalSoundController(csar.value))
-    }
-
-    @FXML
     private fun openMassRename() {
         val currentController = controllers[tabs.selectionModel.selectedIndex]
         loadAndShowForm("MassRename.fxml", MassRenameController(currentController.retrieveEntries()))
@@ -189,7 +184,22 @@ class MainWindowController : Initializable {
     }
 
     @FXML
+    private fun openCreateExternalSound() {
+        loadAndShowForm("CreateExternalSound.fxml", CreateExternalSoundController(csar.value))
+    }
+
+    @FXML
     private fun openCreatePlayer() {
         loadAndShowForm("CreatePlayer.fxml", CreatePlayerController(csar.value))
+    }
+
+    @FXML
+    private fun openCreateSoundSet() {
+        loadAndShowForm("CreateSoundSet.fxml", CreateSoundSetController(csar.value))
+    }
+
+    @FXML
+    private fun openCreateArchive() {
+        loadAndShowForm("CreateArchive.fxml", CreateArchiveController(csar.value))
     }
 }
