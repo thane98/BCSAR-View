@@ -11,9 +11,15 @@ import javafx.scene.Scene
 import javafx.scene.control.TextField
 import javafx.scene.text.Font
 import javafx.stage.Stage
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
 import java.text.ParseException
+import java.util.logging.FileHandler
+import java.util.logging.Level
+import java.util.logging.Logger
+import java.util.logging.SimpleFormatter
 
 class Main : Application() {
     // Suppressing two kinds of exceptions here
@@ -32,7 +38,7 @@ class Main : Application() {
                     dialog.showAndWait()
                 }
             }
-            throwable.printStackTrace()
+            logger.severe(printError(throwable))
         }
 
         Font.loadFont(this.javaClass.getResourceAsStream("DejaVuSans.ttf"), 14.0)
@@ -51,7 +57,23 @@ class Main : Application() {
         stage.show()
     }
 
+    private fun printError(throwable: Throwable): String {
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        throwable.printStackTrace(pw)
+        return sw.toString()
+    }
+
     companion object {
+        private val logger = Logger.getLogger(Main::class.java.name)
+
+        init {
+            val handler = FileHandler("bcsar-view.log")
+            handler.formatter = SimpleFormatter()
+            logger.level = Configuration.loggingLevel.value
+            logger.addHandler(handler)
+        }
+
         @JvmStatic
         fun main(args: Array<String>) {
             launch(Main::class.java)
