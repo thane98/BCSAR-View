@@ -14,6 +14,7 @@
 
 <?import javafx.stage.Stage?>
 <?import javafx.scene.Scene?>
+<?import javafx.scene.control.Tooltip?>
 <Stage fx:id="stage" resizable="false" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
@@ -55,10 +56,18 @@
                         </font>
                     </Label>
                     <TextField fx:id="nameField" GridPane.columnIndex="1" />
-                    <TextField fx:id="pathField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <TextField fx:id="pathField" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip text="Determines the location of the external sound relative to the BCSAR." />
+                        </tooltip>
+                    </TextField>
                     <ComboBox fx:id="playerBox" prefHeight="26.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"
                               GridPane.rowIndex="2"/>
-                    <ComboBox fx:id="configBox" prefHeight="26.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <ComboBox fx:id="configBox" prefHeight="26.0" prefWidth="600.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <tooltip>
+                            <Tooltip text="The new sound will use the template to generate a sound configuration." />
+                        </tooltip>
+                    </ComboBox>
                 </GridPane>
                 <ButtonBar prefHeight="40.0" prefWidth="200.0">
                     <buttons>

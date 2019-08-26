@@ -10,6 +10,7 @@
 
 <?import javafx.scene.Scene?>
 <?import javafx.stage.Stage?>
+<?import javafx.scene.control.Tooltip?>
 <Stage fx:id="stage" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
    <scene>
       <Scene>
@@ -19,7 +20,11 @@
             </padding>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
                <Label style="-fx-font-size: 18;" text="Path"/>
-               <TextField fx:id="pathField" HBox.hgrow="ALWAYS"/>
+               <TextField fx:id="pathField" HBox.hgrow="ALWAYS">
+                  <tooltip>
+                     <Tooltip text="Determines the location of the external sound relative to the BCSAR." />
+                  </tooltip>
+               </TextField>
             </HBox>
             <ButtonBar prefHeight="40.0" prefWidth="200.0">
                <buttons>

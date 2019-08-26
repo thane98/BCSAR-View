@@ -14,6 +14,7 @@
 <?import javafx.stage.Stage?>
 <?import javafx.scene.Scene?>
 
+<?import javafx.scene.control.Tooltip?>
 <Stage fx:id="stage" title="Create Player" resizable="false" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
@@ -57,7 +58,11 @@
                     <TextField fx:id="nameField" GridPane.columnIndex="1" />
                     <TextField fx:id="soundLimitField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                     <TextField fx:id="unknownField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                    <TextField fx:id="heapSizeField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                    <TextField fx:id="heapSizeField" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <tooltip>
+                            <Tooltip text="The amount of memory to reserve for the playing sound in bytes. Ex. If you need to play a 300 kB sound, your heap size should be a little over 300,000." />
+                        </tooltip>
+                    </TextField>
                 </GridPane>
                 <ButtonBar prefHeight="40.0" prefWidth="200.0">
                     <buttons>

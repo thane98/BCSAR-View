@@ -15,6 +15,7 @@
 <?import org.controlsfx.control.PrefixSelectionComboBox?>
 
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Tooltip?>
 <Stage fx:id="stage" title="Sound Set Editor" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
@@ -42,7 +43,11 @@
                     </ButtonBar>
                     <HBox alignment="CENTER_LEFT" prefHeight="3.0" prefWidth="847.0" spacing="20.0">
                         <Label style="-fx-font-size: 18;" text="Template Sound:"/>
-                        <PrefixSelectionComboBox fx:id="templateSoundBox" prefHeight="35.0" prefWidth="325.0"/>
+                        <PrefixSelectionComboBox fx:id="templateSoundBox" prefHeight="35.0" prefWidth="325.0">
+                            <tooltip>
+                                <Tooltip text="The template will be used to create a configuration for new sounds." />
+                            </tooltip>
+                        </PrefixSelectionComboBox>
                     </HBox>
                     <ButtonBar layoutX="30.0" layoutY="271.0" prefHeight="40.0" prefWidth="200.0">
                         <buttons>

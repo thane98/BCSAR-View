@@ -20,6 +20,7 @@ class CreateArchiveController(private val csar: Csar) : AbstractCreateController
 
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         unknownField.textFormatter = createIntegerTextFormatter()
+        unknownField.text = "3" // Appears to be the default for named archives. Set this for the user.
         createButton.disableProperty().bind(nameField.textProperty().isEmpty.or(unknownField.textProperty().isEmpty))
     }
 
