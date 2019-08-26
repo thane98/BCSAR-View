@@ -50,7 +50,7 @@ class BankController : AbstractEntryController<Bank>() {
         val chooser = createDumpBankDialog(bank)
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            performWithWaitingScreen { csar.value.dumpFile(bank.file.value, result.toPath()) }
+            dumpFile(bank, bank.file.value, result.toPath())
     }
 
     private fun createDumpBankDialog(bank: Bank): FileChooser {

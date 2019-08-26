@@ -1,6 +1,7 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.core.structs.entries.Player
 import com.thane98.bcsarview.ui.utils.createIntegerTextFormatter
 import javafx.beans.binding.Bindings
@@ -35,13 +36,13 @@ class CreatePlayerController(private val csar: Csar) : AbstractCreateController(
     }
 
     @FXML
-    override fun create() {
+    override fun createAndInsert(): AbstractNamedEntry {
         val player = Player()
         player.name.value = nameField.text
         player.soundLimit.value = Integer.parseInt(soundLimitField.text)
         player.unknown.value = Integer.parseInt(unknownField.text)
         player.heapSize.value = Integer.parseInt(heapSizeField.text)
         csar.players.add(player)
-        stage.close()
+        return player
     }
 }

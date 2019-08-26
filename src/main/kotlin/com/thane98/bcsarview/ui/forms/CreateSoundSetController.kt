@@ -2,6 +2,7 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.core.structs.entries.Archive
 import com.thane98.bcsarview.core.structs.entries.InternalFileReference
 import com.thane98.bcsarview.core.structs.entries.SoundSet
@@ -30,7 +31,7 @@ class CreateSoundSetController(private val csar: Csar) : AbstractCreateControlle
         )
     }
 
-    override fun create() {
+    override fun createAndInsert(): AbstractNamedEntry {
         val record = InternalFileReference()
         record.retriever = InMemoryFileRetriever(Cwsd().serialize(csar.byteOrder), csar.byteOrder)
         csar.files.add(record)
@@ -45,6 +46,6 @@ class CreateSoundSetController(private val csar: Csar) : AbstractCreateControlle
         set.unknownFour.value = template.unknownFour.value.copyOf()
         set.archive.value = archiveBox.value
         csar.soundSets.add(set)
-        stage.close()
+        return set
     }
 }

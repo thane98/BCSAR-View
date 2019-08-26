@@ -3,6 +3,7 @@ package com.thane98.bcsarview.ui.forms
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.StrgEntry
 import com.thane98.bcsarview.core.structs.entries.Archive
+import com.thane98.bcsarview.ui.MainWindowController
 import com.thane98.bcsarview.ui.utils.StrgEntryTableCell
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -50,7 +51,7 @@ class ArchiveController : AbstractEntryController<Archive>() {
         val chooser = createDumpArchiveDialog(archive)
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            performWithWaitingScreen { csar.value.dumpFile(archive.file.value, result.toPath()) }
+            dumpFile(archive, archive.file.value, result.toPath())
     }
 
     private fun createDumpArchiveDialog(archive: Archive): FileChooser {

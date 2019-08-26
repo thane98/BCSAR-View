@@ -1,6 +1,7 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
+import com.thane98.bcsarview.ui.MainWindowController
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.TextField
@@ -22,7 +23,10 @@ class MassRenameController(private val entries: List<AbstractNamedEntry>) : Abst
         performWithWaitingScreen {
             for (entry in entries)
                 entry.name.value = entry.name.value.replace(fromField.text, toField.text)
-            Platform.runLater { stage.close() }
+            Platform.runLater {
+                MainWindowController.statusLine.value = "Mass rename complete."
+                stage.close()
+            }
         }
     }
 

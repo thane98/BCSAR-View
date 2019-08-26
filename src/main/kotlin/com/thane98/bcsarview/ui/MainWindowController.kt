@@ -10,17 +10,18 @@ import com.thane98.bcsarview.ui.utils.loadAndShowForm
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.fxml.FXML
-import javafx.fxml.Initializable
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
 import java.net.URL
 import java.nio.file.Path
 import java.util.*
-import kotlin.concurrent.thread
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 class MainWindowController : AbstractFormController() {
     @FXML
@@ -59,12 +60,41 @@ class MainWindowController : AbstractFormController() {
     private lateinit var groupsController: GroupController
     @FXML
     private lateinit var playersController: PlayerController
+    @FXML
+    private lateinit var statusBar: HBox
+    @FXML
+    private lateinit var statusText: Label
+
+    private val statusTimer = Executors.newSingleThreadScheduledExecutor()
+    private var statusTimerTask: Future<*>? = null
 
     private val csar = SimpleObjectProperty<Csar>()
     private lateinit var controllers: List<AbstractEntryController<out AbstractNamedEntry>>
 
+    companion object {
+        val statusLine = SimpleStringProperty()
+    }
+
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
+        setupListeners()
+        setupControlBindingsAndConfigurations()
+        setupControllers()
+    }
+
+    fun shutdown() { statusTimer.shutdownNow() }
+
+    private fun setupListeners() {
         Configuration.theme.addListener { _ -> applyStyles(tabs.scene) }
+        statusLine.addListener { _ ->
+            if (statusLine.value != "") {
+                statusTimerTask?.cancel(true)
+                val task = Runnable { Platform.runLater { statusLine.value = "" } }
+                statusTimerTask = statusTimer.schedule(task, 5, TimeUnit.SECONDS)
+            }
+        }
+    }
+
+    private fun setupControlBindingsAndConfigurations() {
         HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
         editMenu.disableProperty().bind(Bindings.isNull(csar))
         createMenu.disableProperty().bind(Bindings.isNull(csar))
@@ -74,7 +104,10 @@ class MainWindowController : AbstractFormController() {
         saveAsButton.disableProperty().bind(Bindings.isNull(csar))
         closeMenuItem.disableProperty().bind(Bindings.isNull(csar))
         closeButton.disableProperty().bind(Bindings.isNull(csar))
+        statusText.textProperty().bind(statusLine)
+    }
 
+    private fun setupControllers() {
         controllers = listOf(
             configsController,
             soundSetsController,
@@ -103,7 +136,10 @@ class MainWindowController : AbstractFormController() {
         if (selection != null) {
             performWithWaitingScreen {
                 val opened = Csar(selection.toPath())
-                Platform.runLater { csar.value = opened }
+                Platform.runLater {
+                    csar.value = opened
+                    statusLine.value = "Opened ${selection.name}."
+                }
             }
         }
     }
@@ -122,12 +158,18 @@ class MainWindowController : AbstractFormController() {
     }
 
     private fun saveOnDifferentThread(path: Path) {
-        performWithWaitingScreen { csar.value.save(path) }
+        val originalName = csar.value.path.fileName
+        performWithWaitingScreen {
+            csar.value.save(path)
+            Platform.runLater { statusLine.value = "Saved $originalName to ${path.fileName}." }
+        }
     }
 
     @FXML
     private fun close() {
+        val name = csar.value.path.fileName
         csar.value = null
+        statusLine.value = "Closed $name."
     }
 
     @FXML

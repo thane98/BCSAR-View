@@ -38,10 +38,12 @@ class Main : Application() {
         Font.loadFont(this.javaClass.getResourceAsStream("DejaVuSansMono.ttf"), 14.0)
         val loader = FXMLLoader(this.javaClass.getResource("MainWindow.fxml"))
         val parent: Parent = loader.load()
+        val controller = loader.getController<MainWindowController>()
         val scene = Scene(parent)
         applyStyles(scene)
         stage.scene = scene
         stage.title = "BCSAR View"
+        stage.setOnCloseRequest { controller.shutdown() }
         stage.show()
     }
 

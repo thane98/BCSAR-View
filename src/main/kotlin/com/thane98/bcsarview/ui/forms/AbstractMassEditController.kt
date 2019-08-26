@@ -1,5 +1,6 @@
 package com.thane98.bcsarview.ui.forms
 
+import com.thane98.bcsarview.ui.MainWindowController
 import javafx.application.Platform
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
@@ -37,7 +38,10 @@ abstract class AbstractMassEditController<T>(private val items: ObservableList<T
     private fun commit() {
         performWithWaitingScreen {
             commitChanges()
-            Platform.runLater { stage.close() }
+            Platform.runLater {
+                stage.close()
+                MainWindowController.statusLine.value = "Completed edits on ${selection().size} items."
+            }
         }
     }
 

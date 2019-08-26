@@ -2,6 +2,7 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.enums.ConfigType
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
 import com.thane98.bcsarview.core.structs.entries.Player
 import javafx.fxml.FXML
@@ -31,13 +32,13 @@ class CreateExternalSoundController(private val csar: Csar) : AbstractCreateCont
         )
     }
 
-    override fun create() {
+    override fun createAndInsert(): AbstractNamedEntry {
         csar.createExternalSound(
             nameField.text,
             pathField.text,
             playerBox.selectionModel.selectedItem,
             configBox.selectionModel.selectedItem
         )
-        stage.close()
+        return csar.configs.last()
     }
 }

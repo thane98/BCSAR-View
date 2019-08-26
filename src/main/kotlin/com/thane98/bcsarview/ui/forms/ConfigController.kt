@@ -132,7 +132,10 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
 
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            performWithWaitingScreen { csar.value.dumpSound(config, result.toPath(), convertToWav) }
+            performWithWaitingScreen {
+                csar.value.dumpSound(config, result.toPath(), convertToWav)
+                updateStatus("Successfully dumped $config to ${result.path}.")
+            }
     }
 
     private fun dumpSequence(config: AudioConfig) {
@@ -144,8 +147,12 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
             FileChooser.ExtensionFilter("All Files", "*.*")
         )
         val result = chooser.showSaveDialog(table.scene.window)
-        if (result != null)
-            performWithWaitingScreen { csar.value.dumpSound(config, result.toPath(), false) }
+        if (result != null) {
+            performWithWaitingScreen {
+                csar.value.dumpSound(config, result.toPath(), false)
+                updateStatus("Successfully dumped $config to ${result.path}.")
+            }
+        }
     }
 
     override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.configs) }

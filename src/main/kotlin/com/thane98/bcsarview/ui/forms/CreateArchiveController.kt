@@ -2,6 +2,7 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
+import com.thane98.bcsarview.core.structs.entries.AbstractNamedEntry
 import com.thane98.bcsarview.core.structs.entries.Archive
 import com.thane98.bcsarview.core.structs.entries.InternalFileReference
 import com.thane98.bcsarview.core.structs.files.Cwar
@@ -22,7 +23,7 @@ class CreateArchiveController(private val csar: Csar) : AbstractCreateController
         createButton.disableProperty().bind(nameField.textProperty().isEmpty.or(unknownField.textProperty().isEmpty))
     }
 
-    override fun create() {
+    override fun createAndInsert(): AbstractNamedEntry {
         val record = InternalFileReference()
         record.retriever = InMemoryFileRetriever(Cwar().serialize(csar.byteOrder), csar.byteOrder)
         csar.files.add(record)
@@ -33,6 +34,6 @@ class CreateArchiveController(private val csar: Csar) : AbstractCreateController
         archive.entryCount.value = 0
         archive.unknown.value = Integer.parseInt(unknownField.text)
         csar.archives.add(archive)
-        stage.close()
+        return archive
     }
 }

@@ -2,6 +2,7 @@ package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.Player
+import com.thane98.bcsarview.ui.MainWindowController
 import com.thane98.bcsarview.ui.utils.Dialogs
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -49,7 +50,10 @@ abstract class AbstractImportController(protected val destinationCsar: Csar): Ab
     private fun import() {
         performWithWaitingScreen {
             doImport()
-            Platform.runLater { stage.close() }
+            Platform.runLater {
+                MainWindowController.statusLine.value = "Import completed successfully."
+                stage.close()
+            }
         }
     }
 

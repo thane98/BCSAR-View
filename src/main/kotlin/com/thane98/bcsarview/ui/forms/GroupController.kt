@@ -46,7 +46,7 @@ class GroupController : AbstractEntryController<SoundGroup>() {
         val chooser = createDumpSoundGroupDialog(soundGroup)
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            performWithWaitingScreen { csar.value.dumpFile(soundGroup.file.value, result.toPath()) }
+            dumpFile(soundGroup, soundGroup.file.value, result.toPath())
     }
 
     private fun createDumpSoundGroupDialog(soundGroup: SoundGroup): FileChooser {

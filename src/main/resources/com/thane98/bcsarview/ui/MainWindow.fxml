@@ -15,6 +15,10 @@
 <?import org.controlsfx.glyphfont.Glyph?>
 <?import javafx.scene.layout.StackPane?>
 
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
 <StackPane fx:id="container" prefHeight="800.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
     <VBox>
         <MenuBar VBox.vgrow="NEVER">
@@ -100,5 +104,11 @@
                 <fx:include fx:id="players" source="Player.fxml" />
             </Tab>
         </TabPane>
+        <HBox fx:id="statusBar" alignment="CENTER_LEFT">
+            <padding>
+                <Insets left="10.0" right="10.0" top="10.0" bottom="10.0" />
+            </padding>
+            <Label fx:id="statusText" />
+        </HBox>
     </VBox>
 </StackPane>
