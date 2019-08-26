@@ -12,6 +12,7 @@ import javafx.scene.control.TableView
 abstract class AbstractEntryController<T : AbstractNamedEntry> : Initializable {
     @FXML
     protected lateinit var table : TableView<T>
+    var parentForm: AbstractFormController? = null
     val csar = SimpleObjectProperty<Csar>()
 
     init {
@@ -24,6 +25,8 @@ abstract class AbstractEntryController<T : AbstractNamedEntry> : Initializable {
             items.setPredicate { it.toString().contains(text) }
         }
     }
+
+    fun performWithWaitingScreen(action: () -> Unit) { parentForm?.performWithWaitingScreen(action) }
 
     fun refresh() { table.refresh() }
 

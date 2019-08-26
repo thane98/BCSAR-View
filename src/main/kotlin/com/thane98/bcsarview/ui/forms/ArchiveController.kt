@@ -50,7 +50,7 @@ class ArchiveController : AbstractEntryController<Archive>() {
         val chooser = createDumpArchiveDialog(archive)
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            csar.value.dumpFile(archive.file.value, result.toPath())
+            performWithWaitingScreen { csar.value.dumpFile(archive.file.value, result.toPath()) }
     }
 
     private fun createDumpArchiveDialog(archive: Archive): FileChooser {

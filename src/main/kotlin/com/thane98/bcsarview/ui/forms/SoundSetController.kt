@@ -68,7 +68,7 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
         val chooser = createDumpSoundSetDialog(soundSet)
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            csar.value.dumpFile(soundSet.file.value, result.toPath())
+            performWithWaitingScreen { csar.value.dumpFile(soundSet.file.value, result.toPath()) }
     }
 
     private fun createDumpSoundSetDialog(soundSet: SoundSet): FileChooser {
@@ -90,7 +90,7 @@ class SoundSetController : AbstractEntryController<SoundSet>() {
             chooser.title = "Select destination..."
             val result = chooser.showDialog(table.scene.window)
             if (result != null)
-                csar.value.extractSoundSet(soundSet, result.toPath(), convertToWav)
+                performWithWaitingScreen { csar.value.extractSoundSet(soundSet, result.toPath(), convertToWav) }
         }
     }
 

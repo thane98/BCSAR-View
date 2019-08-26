@@ -1,10 +1,8 @@
 package com.thane98.bcsarview.ui.forms
 
 import com.thane98.bcsarview.core.enums.ConfigType
-import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.AudioConfig
-import com.thane98.bcsarview.core.structs.entries.InternalFileReference
 import com.thane98.bcsarview.core.structs.entries.SoundSet
 import com.thane98.bcsarview.core.utils.readAndConvertWav
 import com.thane98.bcsarview.ui.interfaces.IUserAction
@@ -14,23 +12,18 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
-import javafx.fxml.Initializable
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import org.controlsfx.glyphfont.Glyph
-import org.controlsfx.glyphfont.GlyphFontRegistry
 import java.io.File
 import java.net.URL
 import java.util.*
-import javax.swing.GroupLayout
 import kotlin.concurrent.thread
 
-class SoundSetEditorController(private val csar: Csar, private val soundSet: SoundSet) : Initializable {
+class SoundSetEditorController(private val csar: Csar, private val soundSet: SoundSet) : AbstractFormController() {
     @FXML
     lateinit var stage: Stage
     @FXML
@@ -85,7 +78,6 @@ class SoundSetEditorController(private val csar: Csar, private val soundSet: Sou
                 private fun onOpenButtonPressed() {
                     val result = chooser.showOpenDialog(stage)
                     if (result != null) {
-                        chooser.initialDirectory = result.parentFile
                         val target = item
                         changesList.add(object : IUserAction {
                             override fun apply() {
@@ -111,12 +103,16 @@ class SoundSetEditorController(private val csar: Csar, private val soundSet: Sou
     @FXML
     private fun addSound() {
         val result = chooser.showOpenMultipleDialog(stage)
-        if (result != null && result.isNotEmpty()) {
-            chooser.initialDirectory = result.first().parentFile
-            val newSounds = createSoundsFromWAVs(result).unzip()
+        if (result != null && result.isNotEmpty())
+            addSounds(result)
+    }
+
+    private fun addSounds(files: List<File>) {
+        performWithWaitingScreen {
+            val newSounds = createSoundsFromWAVs(files).unzip()
             items.addAll(newSounds.first)
-            for (i in 0 until result.size)
-                pathData[newSounds.first[i]] = SimpleStringProperty(result[i].name)
+            for (i in 0 until files.size)
+                pathData[newSounds.first[i]] = SimpleStringProperty(files[i].name)
             changesList.add(object : IUserAction {
                 override fun apply() {
                     csar.addNewSoundsToSet(soundSet, newSounds.first, newSounds.second, templateSoundBox.value)
@@ -170,7 +166,7 @@ class SoundSetEditorController(private val csar: Csar, private val soundSet: Sou
 
     @FXML
     private fun commit() {
-        thread {
+        performWithWaitingScreen {
             for (change in changesList)
                 change.apply()
             Platform.runLater { stage.close() }

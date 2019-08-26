@@ -3,6 +3,7 @@ package com.thane98.bcsarview.ui.forms
 import com.thane98.bcsarview.core.structs.Csar
 import com.thane98.bcsarview.core.structs.entries.Player
 import com.thane98.bcsarview.ui.utils.Dialogs
+import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.control.Alert
@@ -14,7 +15,7 @@ import java.lang.Exception
 import java.net.URL
 import java.util.*
 
-abstract class AbstractImportController(protected val destinationCsar: Csar): Initializable {
+abstract class AbstractImportController(protected val destinationCsar: Csar): AbstractFormController() {
     @FXML
     protected lateinit var stage: Stage
     @FXML
@@ -46,23 +47,13 @@ abstract class AbstractImportController(protected val destinationCsar: Csar): In
 
     @FXML
     private fun import() {
-        try {
+        performWithWaitingScreen {
             doImport()
-            stage.close()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+            Platform.runLater { stage.close() }
         }
     }
 
     protected abstract fun doImport()
-
-    private fun showImportFailureAlert(ex: Exception) {
-        val alert = Alert(Alert.AlertType.ERROR)
-        alert.title = "Add Failed"
-        alert.headerText = "Unable to import sounds."
-        alert.contentText = ex.message
-        alert.showAndWait()
-    }
 
     @FXML
     private fun cancel() { stage.close() }

@@ -1,5 +1,6 @@
 package com.thane98.bcsarview.ui.forms
 
+import javafx.application.Platform
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
@@ -13,7 +14,7 @@ import javafx.stage.Stage
 import java.net.URL
 import java.util.*
 
-abstract class AbstractMassEditController<T>(private val items: ObservableList<T>): Initializable {
+abstract class AbstractMassEditController<T>(private val items: ObservableList<T>): AbstractFormController() {
     @FXML
     private lateinit var stage: Stage
     @FXML
@@ -34,8 +35,10 @@ abstract class AbstractMassEditController<T>(private val items: ObservableList<T
 
     @FXML
     private fun commit() {
-        commitChanges()
-        stage.close()
+        performWithWaitingScreen {
+            commitChanges()
+            Platform.runLater { stage.close() }
+        }
     }
 
     @FXML

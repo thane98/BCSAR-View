@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/8.0.202-ea" style="-fx-background-color: #000000B0;">
+    <ProgressIndicator maxWidth="300" maxHeight="300" style="-fx-progress-color: derive(#0078d7, 95%);"/>
+</StackPane>

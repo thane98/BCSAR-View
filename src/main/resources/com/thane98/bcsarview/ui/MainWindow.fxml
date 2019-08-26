@@ -14,10 +14,8 @@
 <?import javafx.scene.layout.Pane?>
 <?import org.controlsfx.glyphfont.Glyph?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.layout.Region?>
 
-<StackPane prefHeight="800.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
+<StackPane fx:id="container" prefHeight="800.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
     <VBox>
         <MenuBar VBox.vgrow="NEVER">
             <Menu mnemonicParsing="false" text="File">
@@ -103,6 +101,4 @@
             </Tab>
         </TabPane>
     </VBox>
-    <Region fx:id="waitingEffect" visible="false" style="-fx-background-color: #00000060;"/>
-    <ProgressIndicator maxWidth="300" maxHeight="300" fx:id="waitingIndicator" visible="false"/>
 </StackPane>

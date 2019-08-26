@@ -15,5 +15,7 @@ abstract class AbstractCreateController : Initializable {
     protected abstract fun create()
 
     @FXML
-    protected fun cancel() { stage.close() }
+    protected fun cancel() {
+        stage.close()
+    }
 }

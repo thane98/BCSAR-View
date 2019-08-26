@@ -22,11 +22,7 @@ import java.nio.file.Path
 import java.util.*
 import kotlin.concurrent.thread
 
-class MainWindowController : Initializable {
-    @FXML
-    private lateinit var waitingEffect: Region
-    @FXML
-    private lateinit var waitingIndicator: ProgressIndicator
+class MainWindowController : AbstractFormController() {
     @FXML
     private lateinit var editMenu: Menu
     @FXML
@@ -70,7 +66,6 @@ class MainWindowController : Initializable {
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         Configuration.theme.addListener { _ -> applyStyles(tabs.scene) }
         HBox.setHgrow(toolBarSpacer, Priority.ALWAYS)
-        waitingEffect.visibleProperty().bind(waitingIndicator.visibleProperty())
         editMenu.disableProperty().bind(Bindings.isNull(csar))
         createMenu.disableProperty().bind(Bindings.isNull(csar))
         saveMenuItem.disableProperty().bind(Bindings.isNull(csar))
@@ -79,6 +74,7 @@ class MainWindowController : Initializable {
         saveAsButton.disableProperty().bind(Bindings.isNull(csar))
         closeMenuItem.disableProperty().bind(Bindings.isNull(csar))
         closeButton.disableProperty().bind(Bindings.isNull(csar))
+
         controllers = listOf(
             configsController,
             soundSetsController,
@@ -88,8 +84,10 @@ class MainWindowController : Initializable {
             groupsController,
             playersController
         )
-        for (controller in controllers)
+        for (controller in controllers) {
+            controller.parentForm = this
             controller.csar.bind(csar)
+        }
     }
 
     @FXML
@@ -103,14 +101,9 @@ class MainWindowController : Initializable {
         val dialog = Dialogs.bcsarChooser
         val selection = dialog.showOpenDialog(tabs.scene.window)
         if (selection != null) {
-            dialog.initialDirectory = selection.parentFile
-            waitingIndicator.isVisible = true
-            thread {
+            performWithWaitingScreen {
                 val opened = Csar(selection.toPath())
-                Platform.runLater {
-                    csar.value = opened
-                    waitingIndicator.isVisible = false
-                }
+                Platform.runLater { csar.value = opened }
             }
         }
     }
@@ -124,21 +117,12 @@ class MainWindowController : Initializable {
     private fun saveFileAs() {
         val dialog = Dialogs.bcsarChooser
         val selection = dialog.showSaveDialog(tabs.scene.window)
-        if (selection != null) {
-            dialog.initialDirectory = selection.parentFile
+        if (selection != null)
             saveOnDifferentThread(selection.toPath())
-        }
     }
 
     private fun saveOnDifferentThread(path: Path) {
-        waitingIndicator.isVisible = true
-        thread {
-            try {
-                csar.value.save(path)
-            } finally {
-                Platform.runLater { waitingIndicator.isVisible = false }
-            }
-        }
+        performWithWaitingScreen { csar.value.save(path) }
     }
 
     @FXML

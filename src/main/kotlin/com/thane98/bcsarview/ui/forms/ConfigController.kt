@@ -132,7 +132,7 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
 
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            csar.value.dumpSound(config, result.toPath(), convertToWav)
+            performWithWaitingScreen { csar.value.dumpSound(config, result.toPath(), convertToWav) }
     }
 
     private fun dumpSequence(config: AudioConfig) {
@@ -145,7 +145,7 @@ class ConfigController : AbstractEntryController<AudioConfig>() {
         )
         val result = chooser.showSaveDialog(table.scene.window)
         if (result != null)
-            csar.value.dumpSound(config, result.toPath(), false)
+            performWithWaitingScreen { csar.value.dumpSound(config, result.toPath(), false) }
     }
 
     override fun onFileChange(csar: Csar?) { table.items = if (csar == null) null else FilteredList(csar.configs) }
