@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit
 
 class MainWindowController : AbstractFormController() {
     @FXML
+    private lateinit var themeToggleGroup: ToggleGroup
+    @FXML
     private lateinit var editMenu: Menu
     @FXML
     private lateinit var createMenu: Menu
@@ -35,7 +37,13 @@ class MainWindowController : AbstractFormController() {
     @FXML
     private lateinit var closeMenuItem: MenuItem
     @FXML
+    private lateinit var showToolBarItem: CheckMenuItem
+    @FXML
+    private lateinit var showStatusBarItem: CheckMenuItem
+    @FXML
     private lateinit var tabs: TabPane
+    @FXML
+    private lateinit var toolBar: ToolBar
     @FXML
     private lateinit var saveButton: Button
     @FXML
@@ -78,6 +86,7 @@ class MainWindowController : AbstractFormController() {
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         setupListeners()
         setupControlBindingsAndConfigurations()
+        setupThemeMenu()
         setupControllers()
     }
 
@@ -105,6 +114,23 @@ class MainWindowController : AbstractFormController() {
         closeMenuItem.disableProperty().bind(Bindings.isNull(csar))
         closeButton.disableProperty().bind(Bindings.isNull(csar))
         statusText.textProperty().bind(statusLine)
+        statusBar.visibleProperty().bind(Configuration.showStatusBar)
+        statusBar.managedProperty().bind(statusBar.visibleProperty())
+        toolBar.visibleProperty().bind(Configuration.showToolBar)
+        toolBar.managedProperty().bind(toolBar.visibleProperty())
+        showStatusBarItem.selectedProperty().bindBidirectional(Configuration.showStatusBar)
+        showToolBarItem.selectedProperty().bindBidirectional(Configuration.showToolBar)
+    }
+
+    private fun setupThemeMenu() {
+        if (Configuration.theme.value == "Light")
+            themeToggleGroup.selectToggle(themeToggleGroup.toggles.first())
+        else
+            themeToggleGroup.selectToggle(themeToggleGroup.toggles.last())
+        themeToggleGroup.selectedToggleProperty().addListener { _ ->
+            val item = themeToggleGroup.selectedToggle as RadioMenuItem
+            Configuration.theme.value = item.text
+        }
     }
 
     private fun setupControllers() {

@@ -19,7 +19,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.RadioMenuItem?>
 <StackPane fx:id="container" prefHeight="800.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://java.sun.com/JSP/Page" fx:controller="com.thane98.bcsarview.ui.MainWindowController">
+    <fx:define>
+        <ToggleGroup fx:id="themeToggleGroup"/>
+    </fx:define>
     <VBox>
         <MenuBar VBox.vgrow="NEVER">
             <Menu mnemonicParsing="false" text="File">
@@ -48,11 +54,19 @@
                 <MenuItem mnemonicParsing="false" text="Sound Set" onAction="#openCreateSoundSet" />
                 <MenuItem mnemonicParsing="false" text="Archive" onAction="#openCreateArchive" />
             </Menu>
+            <Menu mnemonicParsing="false" text="View">
+                <Menu mnemonicParsing="false" text="Theme">
+                    <RadioMenuItem mnemonicParsing="false" text="Light" toggleGroup="$themeToggleGroup" />
+                    <RadioMenuItem mnemonicParsing="false" text="Dark" toggleGroup="$themeToggleGroup" />
+                </Menu>
+                <CheckMenuItem fx:id="showToolBarItem" mnemonicParsing="false" text="Show Tool Bar" />
+                <CheckMenuItem fx:id="showStatusBarItem" mnemonicParsing="false" text="Show Status Bar" />
+            </Menu>
             <Menu mnemonicParsing="false" text="Help">
                 <MenuItem mnemonicParsing="false" text="About" onAction="#openAbout" />
             </Menu>
         </MenuBar>
-        <ToolBar>
+        <ToolBar fx:id="toolBar">
             <Button text="Open" onAction="#openFile">
                 <graphic>
                     <Glyph fontFamily="FontAwesome" icon="FOLDER_OPEN" />

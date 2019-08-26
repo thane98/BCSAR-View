@@ -1,5 +1,6 @@
 package com.thane98.bcsarview.ui
 
+import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.ui.utils.applyStyles
 import com.thane98.bcsarview.ui.utils.createErrorDialog
 import javafx.application.Application
@@ -43,7 +44,10 @@ class Main : Application() {
         applyStyles(scene)
         stage.scene = scene
         stage.title = "BCSAR View"
-        stage.setOnCloseRequest { controller.shutdown() }
+        stage.setOnCloseRequest {
+            controller.shutdown()
+            Configuration.save()
+        }
         stage.show()
     }
 
