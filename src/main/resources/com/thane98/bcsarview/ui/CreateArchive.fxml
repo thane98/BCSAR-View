@@ -13,7 +13,7 @@
 <?import javafx.stage.Stage?>
 <?import javafx.scene.Scene?>
 
-<Stage fx:id="stage" title="Create Player" resizable="false" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+<Stage fx:id="stage" title="Create Archive" resizable="false" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
             <VBox maxHeight="-Infinity" spacing="5.0" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"

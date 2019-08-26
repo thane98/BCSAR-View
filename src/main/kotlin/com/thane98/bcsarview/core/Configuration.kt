@@ -1,14 +1,14 @@
 package com.thane98.bcsarview.core
 
-import com.thane98.bcsarview.ui.Main
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
-import java.lang.Exception
+import java.io.*
+import java.util.*
 import java.util.logging.Level
-import java.util.prefs.Preferences
 
 object Configuration {
+    private val propertiesPath = File(System.getProperty("user.dir") + "/bcsar-view.xml")
     val theme = SimpleStringProperty()
     val loggingLevel = SimpleObjectProperty<Level>()
     val cwavToWavCommand = SimpleStringProperty()
@@ -17,29 +17,47 @@ object Configuration {
     val showStatusBar = SimpleBooleanProperty()
 
     init {
-        val preferences = Preferences.userNodeForPackage(Main::class.java)
-        cwavToWavCommand.value = preferences.get("cwavToWavCommand", null)
-        wavToCwavCommand.value = preferences.get("wavToCwavCommand", null)
-        showToolBar.value = preferences.getBoolean("showToolBar", true)
-        showStatusBar.value = preferences.getBoolean("showStatusBar", true)
-        theme.value = preferences.get("theme", "Light")
+        val properties = Properties()
+        readPropertiesFile(properties)
+        cwavToWavCommand.value = properties.getProperty("cwavToWavCommand", "")
+        wavToCwavCommand.value = properties.getProperty("wavToCwavCommand", "")
+        showToolBar.value = properties.getBoolean("showToolBar", true)
+        showStatusBar.value = properties.getBoolean("showStatusBar", true)
+        theme.value = properties.getProperty("theme", "Light")
         if (theme.value != "Light" && theme.value != "Dark")
             theme.value = "Light"
         try {
-            loggingLevel.value = Level.parse(preferences.get("loggingLevel", "INFO"))
+            loggingLevel.value = Level.parse(properties.getProperty("loggingLevel", "INFO"))
         } catch (ex: Exception) {
             loggingLevel.value = Level.INFO
         }
     }
 
+    private fun readPropertiesFile(destination: Properties) {
+        if (propertiesPath.exists()) {
+            val propertiesStream = BufferedInputStream(FileInputStream(propertiesPath))
+            propertiesStream.use {
+                destination.loadFromXML(propertiesStream)
+            }
+        }
+    }
+
+    private fun Properties.getBoolean(key: String, default: Boolean): Boolean {
+        return try {
+            this.getProperty(key)!!.toBoolean()
+        } catch (ex: Exception) {
+            default
+        }
+    }
+
     fun save() {
-        val preferences = Preferences.userNodeForPackage(Main::class.java)
-        preferences.put("theme", theme.value)
-        preferences.put("loggingLevel", loggingLevel.value.name)
-        preferences.put("cwavToWavCommand", cwavToWavCommand.value)
-        preferences.put("wavToCwavCommand", wavToCwavCommand.value)
-        preferences.putBoolean("showToolBar", showToolBar.value)
-        preferences.putBoolean("showStatusBar", showStatusBar.value)
-        preferences.flush()
+        val properties = Properties()
+        properties.setProperty("theme", theme.value)
+        properties.setProperty("loggingLevel", loggingLevel.value.name)
+        properties.setProperty("cwavToWavCommand", cwavToWavCommand.value)
+        properties.setProperty("wavToCwavCommand", wavToCwavCommand.value)
+        properties.setProperty("showToolBar", showToolBar.value.toString())
+        properties.setProperty("showStatusBar", showStatusBar.value.toString())
+        properties.storeToXML(BufferedOutputStream(FileOutputStream(propertiesPath)), null)
     }
 }

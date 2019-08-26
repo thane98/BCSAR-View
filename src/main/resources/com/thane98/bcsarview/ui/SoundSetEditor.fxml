@@ -16,7 +16,7 @@
 
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.Tooltip?>
-<Stage fx:id="stage" title="Sound Set Editor" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+<Stage fx:id="stage" title="Edit Sound Set" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
     <scene>
         <Scene>
             <StackPane fx:id="container">

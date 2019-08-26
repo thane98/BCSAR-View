@@ -13,7 +13,7 @@ repositories {
 
 jar {
     manifest {
-        attributes "Main-Class": "com.thane98.bcsarview.ui.MainKt"
+        attributes "Main-Class": "com.thane98.bcsarview.ui.BCSARView"
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
@@ -33,4 +33,4 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-mainClassName = "com.thane98.bcsarview.ui.Main"
+mainClassName = "com.thane98.bcsarview.ui.BCSARView"

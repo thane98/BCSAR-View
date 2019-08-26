@@ -1,6 +1,6 @@
 package com.thane98.bcsarview.ui.forms
 
-import com.thane98.bcsarview.ui.Main
+import com.thane98.bcsarview.ui.BCSARView
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
@@ -11,7 +11,7 @@ import kotlin.concurrent.thread
 abstract class AbstractFormController : Initializable {
     @FXML
     private lateinit var container: StackPane
-    private val waitingIndicator: StackPane = FXMLLoader.load(Main::class.java.getResource("WaitingIndicator.fxml"))
+    private val waitingIndicator: StackPane = FXMLLoader.load(BCSARView::class.java.getResource("WaitingIndicator.fxml"))
 
     fun performWithWaitingScreen(action: () -> Unit) {
         showWaitingScreen()

@@ -2,4 +2,6 @@ build
 gradle
 .gradle
 .idea
+out
 bcsar-view.log
+bcsar-view.xml

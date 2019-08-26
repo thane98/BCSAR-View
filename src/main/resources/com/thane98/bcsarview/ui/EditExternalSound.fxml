@@ -11,7 +11,7 @@
 <?import javafx.scene.Scene?>
 <?import javafx.stage.Stage?>
 <?import javafx.scene.control.Tooltip?>
-<Stage fx:id="stage" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
+<Stage fx:id="stage" title="Edit External Sound" xmlns="http://javafx.com/javafx/8.0.202-ea" xmlns:fx="http://javafx.com/fxml/1">
    <scene>
       <Scene>
          <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="120.0" prefWidth="474.0" spacing="10.0">

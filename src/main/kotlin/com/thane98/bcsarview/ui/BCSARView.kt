@@ -8,7 +8,6 @@ import javafx.application.Platform
 import javafx.fxml.FXMLLoader
 import javafx.scene.Parent
 import javafx.scene.Scene
-import javafx.scene.control.TextField
 import javafx.scene.text.Font
 import javafx.stage.Stage
 import java.io.PrintWriter
@@ -17,11 +16,10 @@ import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
 import java.text.ParseException
 import java.util.logging.FileHandler
-import java.util.logging.Level
 import java.util.logging.Logger
 import java.util.logging.SimpleFormatter
 
-class Main : Application() {
+class BCSARView : Application() {
     // Suppressing two kinds of exceptions here
     // - InvocationTargetExceptions, will already catch the nested exception in this case.
     // - ParseException, thrown by NumberStringConverter when user enters bad input. Not worth a dialog.
@@ -65,7 +63,7 @@ class Main : Application() {
     }
 
     companion object {
-        private val logger = Logger.getLogger(Main::class.java.name)
+        private val logger = Logger.getLogger(BCSARView::class.java.name)
 
         init {
             val handler = FileHandler("bcsar-view.log")
@@ -76,7 +74,7 @@ class Main : Application() {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            launch(Main::class.java)
+            launch(BCSARView::class.java)
         }
     }
 }

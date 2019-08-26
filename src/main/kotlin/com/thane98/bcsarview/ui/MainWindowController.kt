@@ -124,12 +124,14 @@ class MainWindowController : AbstractFormController() {
 
     private fun setupThemeMenu() {
         if (Configuration.theme.value == "Light")
-            themeToggleGroup.selectToggle(themeToggleGroup.toggles.first())
+            themeToggleGroup.selectToggle(themeToggleGroup.toggles[0])
         else
-            themeToggleGroup.selectToggle(themeToggleGroup.toggles.last())
+            themeToggleGroup.selectToggle(themeToggleGroup.toggles[1])
         themeToggleGroup.selectedToggleProperty().addListener { _ ->
-            val item = themeToggleGroup.selectedToggle as RadioMenuItem
-            Configuration.theme.value = item.text
+            if (themeToggleGroup.selectedToggle != null) {
+                val item = themeToggleGroup.selectedToggle as RadioMenuItem
+                Configuration.theme.value = item.text
+            }
         }
     }
 

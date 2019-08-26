@@ -1,10 +1,9 @@
 package com.thane98.bcsarview.ui.utils
 
-import com.thane98.bcsarview.ui.Main
+import com.thane98.bcsarview.ui.BCSARView
 import com.thane98.bcsarview.ui.forms.ErrorDialogController
 import javafx.fxml.FXMLLoader
 import javafx.stage.FileChooser
-import java.lang.Exception
 import javafx.stage.Stage
 
 class Dialogs {
@@ -24,7 +23,7 @@ class Dialogs {
 fun createErrorDialog(throwable: Throwable, headerText: String): Stage {
     val loader = FXMLLoader()
     loader.setController(ErrorDialogController(throwable, headerText))
-    val stage = loader.load<Stage>(Main::class.java.getResourceAsStream("ErrorDialog.fxml"))
+    val stage = loader.load<Stage>(BCSARView::class.java.getResourceAsStream("ErrorDialog.fxml"))
     applyStyles(stage.scene)
     return stage
 }
