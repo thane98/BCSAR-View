@@ -15,7 +15,7 @@ Assuming you have an extracted 3DS romfs to work with, begin by running BCSAR Vi
 
 From there, you are free to make edits to the file. When you are done, click "Save" to overwrite or "Save As" to save to a new location. For details on specific operations like dumping, adding new sounds, etc. see the following pages:
 * [Setup](https://github.com/thane98/BCSAR-View/wiki/Setup)
-* [Dumping](https://github.com/thane98/BCSAR-View/wiki/Dumping/_edit)
+* [Dumping](https://github.com/thane98/BCSAR-View/wiki/Dumping)
 * [Importing Sounds](https://github.com/thane98/BCSAR-View/wiki/Importing-Sounds)
 * [Editing Sound Sets](https://github.com/thane98/BCSAR-View/wiki/Editing-Sound-Sets)
 * [Creation](https://github.com/thane98/BCSAR-View/wiki/Creation)
