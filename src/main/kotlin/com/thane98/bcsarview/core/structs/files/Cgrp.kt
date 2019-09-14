@@ -7,7 +7,7 @@ import com.thane98.bcsarview.core.io.verifyMagic
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 
-data class InfxEntry(val itemId: Int, val itemType: Int, val unknown: Int)
+data class InfxEntry(var itemId: Int, val itemType: Int, val unknown: Int)
 
 class Cgrp() {
     val infoEntries = mutableListOf<ByteArray>()

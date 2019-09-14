@@ -11,10 +11,12 @@ import com.thane98.bcsarview.core.structs.entries.*
 import com.thane98.bcsarview.core.structs.files.Cgrp
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import java.lang.IllegalStateException
 import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
 
 private data class Sets(val soundSets: ObservableList<SoundSet>, val sequenceSets: ObservableList<SequenceSet>)
 
@@ -52,12 +54,12 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         files = readFileTable(reader, fileTableAddress, csar)
         archives = readArchiveTable(reader, archiveTableAddress, strg)
         banks = readBankTable(reader, bankTableAddress, strg)
-        groups = readGroupTable(reader, groupTableAddress, strg)
         players = readPlayerTable(reader, playerTableAddress, strg)
         configs = readConfigTable(reader, configTableAddress, strg, setTableAddress)
         val sets = readSetTable(reader, setTableAddress, strg)
         soundSets = sets.soundSets
         sequenceSets = sets.sequenceSets
+        groups = readGroupTable(reader, groupTableAddress, strg)
         reader.seek(footerAddress)
         footer = reader.read(0x1C).array()
     }
@@ -186,7 +188,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         val sets = mutableListOf<IEntry>()
         sets.addAll(soundSets)
         sets.addAll(sequenceSets)
-        updateGroupFiles(csar.byteOrder)
+        updateGroupFiles(csar.byteOrder, configs)
         updateFileTableAddresses()
 
         val result = mutableListOf<Byte>()
@@ -251,9 +253,19 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         }
     }
 
-    private fun updateGroupFiles(byteOrder: ByteOrder) {
+    private fun updateGroupFiles(byteOrder: ByteOrder, configs: List<AudioConfig>) {
         for (group in groups) {
             val cgrp = Cgrp(group.file.value.open())
+            assert(group.items.size == cgrp.infxEntries.size)
+            for (i in 0 until group.items.size) {
+                cgrp.infxEntries[i].itemId = when (group.items[i]) {
+                    is AudioConfig -> configs.indexOf(group.items[i])
+                    is SoundSet -> soundSets.indexOf(group.items[i])
+                    is SequenceSet -> sequenceSets.indexOf(group.items[i]) + soundSets.size
+                    is Bank -> banks.indexOf(group.items[i])
+                    else -> throw IllegalStateException("Unexpected item type in sound group!")
+                }
+            }
             group.file.value.retriever = InMemoryFileRetriever(cgrp.serialize(byteOrder), byteOrder)
         }
     }
