@@ -5,11 +5,16 @@ import com.thane98.bcsarview.core.interfaces.IBinaryReader
 import com.thane98.bcsarview.core.interfaces.IBinaryWriter
 import com.thane98.bcsarview.core.interfaces.IEntry
 import com.thane98.bcsarview.core.io.ByteListWriter
+import com.thane98.bcsarview.core.io.retrievers.InMemoryFileRetriever
 import com.thane98.bcsarview.core.io.verifyMagic
 import com.thane98.bcsarview.core.structs.entries.*
+import com.thane98.bcsarview.core.structs.files.Cgrp
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 
 private data class Sets(val soundSets: ObservableList<SoundSet>, val sequenceSets: ObservableList<SequenceSet>)
 
@@ -181,6 +186,7 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
         val sets = mutableListOf<IEntry>()
         sets.addAll(soundSets)
         sets.addAll(sequenceSets)
+        updateGroupFiles(csar.byteOrder)
         updateFileTableAddresses()
 
         val result = mutableListOf<Byte>()
@@ -242,6 +248,13 @@ class Info(reader: IBinaryReader, baseAddress: Long, csar: Csar, strg: Strg) {
                 nextAddress += file.fileSize()
                 nextAddress += (0x20 - (nextAddress % 0x20)) % 0x20
             }
+        }
+    }
+
+    private fun updateGroupFiles(byteOrder: ByteOrder) {
+        for (group in groups) {
+            val cgrp = Cgrp(group.file.value.open())
+            group.file.value.retriever = InMemoryFileRetriever(cgrp.serialize(byteOrder), byteOrder)
         }
     }
 
