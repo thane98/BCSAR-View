@@ -9,10 +9,7 @@ import javafx.scene.control.SelectionMode
 import java.net.URL
 import java.util.*
 
-class ImportSoundSetController(destinationCsar: Csar): AbstractImportController(destinationCsar) {
-    @FXML
-    private lateinit var selectionView: ListView<SoundSet>
-
+class ImportSoundSetController(destinationCsar: Csar): AbstractImportController<SoundSet>(destinationCsar) {
     override fun initialize(p0: URL?, p1: ResourceBundle?) {
         super.initialize(p0, p1)
         val hasNoSelectionProperty = Bindings.isEmpty(selectionView.selectionModel.selectedItems)
