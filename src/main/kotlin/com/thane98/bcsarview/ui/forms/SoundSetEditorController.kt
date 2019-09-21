@@ -59,7 +59,7 @@ class SoundSetEditorController(private val csar: Csar, private val soundSet: Sou
                         val display = GridPane()
                         display.alignment = Pos.CENTER_LEFT
                         display.hgap = 10.0
-                        display.style = "-fx-background-color: #111;"
+                        display.id = "soundSetEditorCell"
                         val label = Label(config.toString())
                         label.prefWidth = 250.0
                         val pathField = TextField()
