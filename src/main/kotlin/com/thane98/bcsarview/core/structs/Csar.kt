@@ -20,6 +20,7 @@ import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 import java.nio.file.*
+import kotlin.io.FileAlreadyExistsException
 
 class Csar(var path: Path) {
     private val info: Info
@@ -87,7 +88,11 @@ class Csar(var path: Path) {
                 fixHeader(writer, strg.size, info.size, filePartitionSize)
             }
         }
-        Files.move(tempDestination, destination, StandardCopyOption.REPLACE_EXISTING)
+        try {
+            Files.move(tempDestination, destination, StandardCopyOption.REPLACE_EXISTING)
+        } catch(_: FileAlreadyExistsException) {
+            throw Exception("Unable to copy temp file to destination. Is the destination in use by another program?")
+        }
         path = destination
     }
 
