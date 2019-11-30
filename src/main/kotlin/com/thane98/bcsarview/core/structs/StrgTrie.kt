@@ -130,7 +130,11 @@ class StrgTrie {
     private fun findTestInfo(smaller: String, larger: String): Pair<Int, Int> {
         val paddedSmaller = smaller.padEnd(larger.length, 0.toChar())
         var i = 0
-        while (paddedSmaller[i] == larger[i]) i++
+        while (paddedSmaller[i] == larger[i]) {
+            i++
+            if (i > larger.length)
+                throw IllegalStateException("Unable to find difference between strings $smaller $larger")
+        }
 
         val charOne = Integer.toBinaryString(paddedSmaller[i].toInt()).padStart(8, '0')
         val charTwo = Integer.toBinaryString(larger[i].toInt()).padStart(8, '0')
