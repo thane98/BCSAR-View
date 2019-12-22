@@ -110,9 +110,9 @@ class SoundSetEditorController(private val csar: Csar, private val soundSet: Sou
     private fun addSounds(files: List<File>) {
         performWithWaitingScreen {
             val newSounds = createSoundsFromWAVs(files).unzip()
-            items.addAll(newSounds.first)
-            for (i in 0 until files.size)
+            for (i in files.indices)
                 pathData[newSounds.first[i]] = SimpleStringProperty(files[i].name)
+            Platform.runLater { items.addAll(newSounds.first) }
             changesList.add(object : IUserAction {
                 override fun apply() {
                     csar.addNewSoundsToSet(soundSet, newSounds.first, newSounds.second, templateSoundBox.value)
