@@ -132,7 +132,7 @@ class StrgTrie {
         var i = 0
         while (paddedSmaller[i] == larger[i]) {
             i++
-            if (i > larger.length)
+            if (i >= larger.length)
                 throw IllegalStateException("Unable to find difference between strings $smaller $larger")
         }
 
