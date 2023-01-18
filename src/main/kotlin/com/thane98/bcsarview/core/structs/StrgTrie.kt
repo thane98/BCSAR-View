@@ -135,7 +135,6 @@ class StrgTrie {
             if (i >= larger.length)
                 throw IllegalStateException("Unable to find difference between strings $smaller $larger")
         }
-
         val charOne = Integer.toBinaryString(paddedSmaller[i].toInt()).padStart(8, '0')
         val charTwo = Integer.toBinaryString(larger[i].toInt()).padStart(8, '0')
         var bit = 0

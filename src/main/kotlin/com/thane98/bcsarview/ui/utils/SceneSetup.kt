@@ -1,21 +1,12 @@
 package com.thane98.bcsarview.ui.utils
 
-import com.thane98.bcsarview.core.Configuration
 import com.thane98.bcsarview.ui.BCSARView
 import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
 import javafx.stage.Stage
-import jfxtras.styles.jmetro8.JMetro
 
-fun applyStyles(scene: Scene) {
-    scene.stylesheets.clear()
-    scene.stylesheets.add(BCSARView::class.java.getResource("styles-common.css").toExternalForm())
-    if (Configuration.theme.value == "Light") {
-        JMetro(JMetro.Style.LIGHT).applyTheme(scene)
-    } else {
-        JMetro(JMetro.Style.DARK).applyTheme(scene)
-        scene.stylesheets.add(BCSARView::class.java.getResource("styles-dark.css").toExternalForm())
-    }
+fun applyStyles(_scene: Scene) {
+
 }
 
 fun loadAndShowForm(formName: String) {

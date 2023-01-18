@@ -21,7 +21,6 @@ import org.controlsfx.glyphfont.Glyph
 import java.io.File
 import java.net.URL
 import java.util.*
-import kotlin.concurrent.thread
 
 class SoundSetEditorController(private val csar: Csar, private val soundSet: SoundSet) : AbstractFormController() {
     @FXML
